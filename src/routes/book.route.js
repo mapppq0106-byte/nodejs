@@ -1,7 +1,13 @@
-const express = require('express')
-const router = express.Router()
-const bookController = require('../controllers/book.controller')
+const express = require('express');
+const router = express.Router();
+const bookController = require('../controllers/book.controller');
 
-router.get('/', bookController.getAllBooks)
+router.get('/', bookController.getAllBooks);
 
-module.exports = router 
+// Trang chi tiết sách
+router.get('/book/:id', bookController.getBookDetail);
+
+// Xử lý gửi đánh giá
+router.post('/book/:id/review', bookController.postReview);
+
+module.exports = router;

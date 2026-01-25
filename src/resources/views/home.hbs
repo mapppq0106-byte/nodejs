@@ -3,15 +3,14 @@
     <div class="book-grid">
         {{#each books}}
         <div class="book-card">
-            <div class="book-image">
+            <a href="/book/{{this.id}}" class="book-image">
                 <img src="/img/{{this.image_url}}" alt="{{this.title}}">
-            </div>
+            </a>
             <div class="book-info">
                 <h3 class="book-title">{{this.title}}</h3>
                 <p class="book-author">Tác giả: {{this.author}}</p>
                 <p class="book-price">{{this.price}} VNĐ</p>
-                <p style="font-size: 0.85rem; color: #aaa;">{{this.description}}</p>
-                <button class="btn-auth" style="margin-top: auto; padding: 8px;">Chi tiết</button>
+                <a href="/book/{{this.id}}" class="btn-auth" style="text-decoration:none; text-align:center; display:block;">Chi tiết</a>
             </div>
         </div>
         {{/each}}

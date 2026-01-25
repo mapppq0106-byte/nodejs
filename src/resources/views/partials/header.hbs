@@ -1,20 +1,24 @@
 <header>
     <div class="header-container">
-        <div class="logo">
-            <a href="/">BOOK STORE</a>
-        </div>
+        <div class="logo"><a href="/">BOOK STORE</a></div>
 
         <nav class="nav-menu">
             <ul>
                 <li><a href="/">Trang Chủ</a></li>
-                <li><a href="#">Sách</a></li>
-                <li><a href="#">Thể Loại</a></li>
+                {{#if (eq user.role 'admin')}}
+                    <li><a href="/admin">Quản trị</a></li>
+                {{/if}}
             </ul>
         </nav>
 
         <div class="auth-buttons">
-            <a href="/login" class="btn-login-nav">Đăng nhập</a>
-            <a href="/signup" class="btn-signup-nav">Đăng ký</a>
+            {{#if user}}
+                <span style="color: white; margin-right: 15px;">Chào, {{user.username}}</span>
+                <a href="/logout" class="btn-login-nav">Đăng xuất</a>
+            {{else}}
+                <a href="/login" class="btn-login-nav">Đăng nhập</a>
+                <a href="/signup" class="btn-signup-nav">Đăng ký</a>
+            {{/if}}
         </div>
     </div>
 </header>

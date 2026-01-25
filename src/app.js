@@ -1,36 +1,50 @@
-require('dotenv').config(); // Nạp biến môi trường
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const { engine } = require('express-handlebars');
+
+// SỬA LỖI ĐƯỜNG DẪN Ở ĐÂY
 const bookRoutes = require('./routes/book.route');
-const authRoutes = require('./routes/auth.route'); // Route cho Login/Signup
+const authRoutes = require('./routes/auth.route');
+const adminRoutes = require('./routes/admin.route');
 
 const app = express();
-const port = 3000;
 
-// Cấu hình Middleware xử lý dữ liệu từ Form và JSON
+app.use(session({
+    secret: 'secret-key-book-store',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// 1. Cấu hình Handlebars làm View Engine
 app.engine('hbs', engine({
     extname: '.hbs',
     defaultLayout: 'main',
     layoutsDir: path.join(__dirname, 'resources/views/layouts'),
-    partialsDir: path.join(__dirname, 'resources/views/partials')
+    partialsDir: path.join(__dirname, 'resources/views/partials'),
+    helpers: {
+        eq: (a, b) => a === b 
+    }
 }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'resources/views'));
 
-// 2. SỬA LỖI ẢNH: Phục vụ file tĩnh từ thư mục public bên trong src
-// Khi bạn dùng <img src="/img/book1.jpg">, nó sẽ tìm tại: src/public/img/book1.jpg
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 3. Đăng ký các Routes
-app.use('/', bookRoutes); // Route cho trang chủ và sách
-app.use('/', authRoutes); // Route cho đăng ký/đăng nhập
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+});
 
-app.listen(port, () => {
-  console.log(`Ứng dụng đang chạy tại http://localhost:${port}`);
+app.use('/', bookRoutes);
+app.use('/', authRoutes);
+app.use('/', adminRoutes);
+
+app.listen(3000, () => {
+  console.log(`Ứng dụng đang chạy tại http://localhost:3000`);
 });
