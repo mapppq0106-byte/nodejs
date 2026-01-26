@@ -2,19 +2,26 @@
     <div class="header-container">
         <div class="logo"><a href="/">BOOK STORE</a></div>
 
-        <nav class="nav-menu">
+        <form action="/" method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Tìm tên sách, tác giả..." class="search-input" value="{{keyword}}">
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i> Tìm
+            </button>
+        </form>
+
+        {{!-- <nav class="nav-menu">
             <ul>
-                <li><a href="/">Trang Chủ</a></li>
                 {{#if (eq user.role 'admin')}}
-                    <li><a href="/admin">Quản trị</a></li>
+                    <li><a href="/admin">Quản lý sách</a></li>
+                    <li><a href="/admin/users">Quản lý người dùng</a></li>
+                    <li><a href="/admin/reviews">Quản lý đánh giá</a></li>
                 {{/if}}
             </ul>
-        </nav>
+        </nav> --}}
 
         <div class="auth-buttons">
             {{#if user}}
-                <span style="color: white; margin-right: 15px;">Chào, {{user.username}}</span>
-                <a href="/logout" class="btn-login-nav">Đăng xuất</a>
+                <a href="/logout" class="btn-logout-nav">Đăng xuất</a>
             {{else}}
                 <a href="/login" class="btn-login-nav">Đăng nhập</a>
                 <a href="/signup" class="btn-signup-nav">Đăng ký</a>

@@ -1,70 +1,140 @@
+/* Tổng thể Header */
 header {
-    background-color: #1a1a1a;
-    border-bottom: 1px solid #333;
-    width: 100%;
-    padding: 15px 0;
-    /* Đảm bảo header sát mép trên cùng */
+    background: rgba(24, 24, 24, 0.95); /* Đồng bộ với màu Sidebar */
+    backdrop-filter: blur(12px); /* Hiệu ứng mờ kính hiện đại */
+    padding: 12px 0;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1001; /* Đảm bảo luôn nằm trên Sidebar */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .header-container {
+    max-width: 1400px; /* Mở rộng để phù hợp với Layout Sidebar */
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 30px;
 }
 
+/* Logo */
 .logo a {
-    color: #ffffff;
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
     text-decoration: none;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
+/* Thanh tìm kiếm hiện đại - Căn giữa Header */
+.search-form {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 2px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    flex: 0 1 450px; /* Độ rộng tối đa của thanh tìm kiếm */
+}
+
+.search-form:focus-within {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #4da3ff;
+    box-shadow: 0 0 15px rgba(77, 163, 255, 0.1);
+}
+
+.search-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 10px;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.search-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px;
+    transition: 0.3s;
+}
+
+.search-btn:hover {
+    color: #fff;
+}
+
+/* Menu Điều hướng bên phải */
 .nav-menu ul {
     display: flex;
     list-style: none;
+    gap: 25px;
+    align-items: center;
 }
 
-.nav-menu ul li {
-    margin: 0 15px;
+.nav-menu a {
+    color: #aaa;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.3s;
 }
 
-.nav-menu ul li a {
-    color: #b0b0b0;
+.nav-menu a:hover {
+    color: #4da3ff;
+}
+
+/* Auth Section */
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-welcome {
+    color: #4da3ff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+/* Nút Đăng xuất kiểu mới */
+.btn-logout-nav {
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff4d4d;
+    border: 1px solid rgba(255, 77, 77, 0.2);
+    background: transparent;
     text-decoration: none;
     transition: 0.3s;
 }
 
-.nav-menu ul li a:hover {
-    color: #ffffff;
+.btn-logout-nav:hover {
+    background: rgba(255, 77, 77, 0.1);
+    border-color: #ff4d4d;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.1);
 }
 
-/* =========================================
-   NÚT ĐĂNG NHẬP & ĐĂNG KÝ (FIXED)
-   ========================================= */
-.auth-buttons {
-    display: flex;
-    gap: 15px;
-}
-
-.btn-login-nav, .btn-signup-nav {
-    color: #b0b0b0; /* Trạng thái bình thường: Chữ xám trắng, không background */
+/* Các nút Login/Signup cho khách */
+.btn-login-nav {
+    color: #fff;
     text-decoration: none;
-    font-weight: 500;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid transparent; /* Giữ khung để không bị giật khi hover */
-    transition: all 0.3s ease;
+    font-size: 14px;
 }
 
-/* HIỆU ỨNG KHI HOVER: Hiện background trắng, chữ đen */
-.btn-login-nav:hover, .btn-signup-nav:hover {
-    background-color: #ffffff;
+.btn-signup-nav {
+    background: #fff;
     color: #121212;
-    border-color: #ffffff;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
 }

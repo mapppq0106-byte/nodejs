@@ -24,9 +24,12 @@
                 <td>{{this.author}}</td>
                 <td>{{this.price}} VNĐ</td>
                 <td>
-                    <form action="/admin/delete/{{this.id}}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?')">
-                        <button type="submit" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Xóa</button>
-                    </form>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="/admin/edit/{{this.id}}" style="color: #4da3ff; text-decoration: none;">Sửa</a>
+                        <form action="/admin/delete/{{this.id}}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?')">
+                            <button type="submit" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Xóa</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {{/each}}

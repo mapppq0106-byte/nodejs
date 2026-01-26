@@ -1,4 +1,5 @@
 const Book = require('../models/book.model');
+const User = require('../models/user.model'); // Import thêm User Model
 
 // Hiển thị danh sách quản lý sách cho admin
 exports.getDashboard = async (req, res) => {
@@ -30,13 +31,99 @@ exports.postAddBook = async (req, res) => {
     }
 };
 
-// Xử lý xóa sách
-exports.postDeleteBook = async (req, res) => {
+// Hiển thị form chỉnh sửa sách
+exports.getEditBook = async (req, res) => {
     try {
-        await Book.delete(req.params.id);
+        const book = await Book.getById(req.params.id);
+        if (!book) return res.status(404).send('Không tìm thấy sách');
+        res.render('admin/edit-book', { book });
+    } catch (error) {
+        res.status(500).send('Lỗi hệ thống');
+    }
+};
+
+// Xử lý cập nhật thông tin sách
+exports.postEditBook = async (req, res) => {
+    try {
+        const { title, author, description, price, isbn } = req.body;
+        const bookId = req.params.id;
+        
+        // Lấy lại thông tin cũ để giữ ảnh nếu người dùng không upload ảnh mới
+        const oldBook = await Book.getById(bookId);
+        const image_url = req.file ? req.file.filename : oldBook.image_url;
+
+        await Book.update(bookId, { title, author, description, image_url, price, isbn });
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
-        res.status(500).send('Lỗi khi xóa sách');
+        res.status(500).send('Lỗi khi cập nhật sách');
+    }
+};
+
+// Xử lý xóa sách
+// File: admin.controller.js
+exports.postDeleteBook = async (req, res) => {
+    try {
+        const bookId = req.params.id;
+        await Book.delete(bookId); // Gọi hàm delete từ book.model.js
+        res.redirect('/admin');   // Xóa xong quay lại trang Dashboard
+    } catch (error) {
+        console.error("Lỗi xóa sách:", error);
+        res.status(500).send('Lỗi khi xóa sách. Vui lòng kiểm tra lại cơ sở dữ liệu!');
+    }
+};
+
+// --- CHỨC NĂNG MỚI: QUẢN LÝ NGƯỜI DÙNG ---
+
+// Hiển thị danh sách người dùng
+exports.getUserManagement = async (req, res) => {
+    try {
+        const users = await User.getAll();
+        res.render('admin/user-list', { users });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Lỗi tải danh sách người dùng');
+    }
+};
+
+// Thay đổi quyền (Admin <-> User)
+exports.postUpdateUserRole = async (req, res) => {
+    try {
+        const { id, role } = req.body;
+        const newRole = (role === 'admin') ? 'user' : 'admin';
+        await User.updateRole(id, newRole);
+        res.redirect('/admin/users');
+    } catch (error) {
+        res.status(500).send('Lỗi cập nhật quyền');
+    }
+};
+
+// Xóa tài khoản người dùng
+exports.postDeleteUser = async (req, res) => {
+    try {
+        await User.delete(req.params.id);
+        res.redirect('/admin/users');
+    } catch (error) {
+        res.status(500).send('Lỗi khi xóa người dùng');
+    }
+};
+
+// Hiển thị trang quản lý tất cả đánh giá
+exports.getReviewManagement = async (req, res) => {
+    try {
+        const reviews = await Book.getAllReviews();
+        res.render('admin/review-list', { reviews });
+    } catch (error) {
+        res.status(500).send('Lỗi tải danh sách đánh giá');
+    }
+};
+
+// Xử lý xóa đánh giá
+exports.postDeleteReview = async (req, res) => {
+    try {
+        await Book.deleteReview(req.params.id);
+        res.redirect('/admin/reviews');
+    } catch (error) {
+        res.status(500).send('Lỗi khi xóa đánh giá');
     }
 };

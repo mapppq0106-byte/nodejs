@@ -1,0 +1,47 @@
+/* Container bọc ngoài cùng để chia cột */
+.admin-layout-wrapper {
+    display: flex;
+    min-height: calc(100vh - 75px); /* Trừ chiều cao header */
+    background-color: #121212;
+}
+
+/* Sidebar cố định */
+.sidebar {
+    width: 260px;
+    background-color: #181818;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 75px; /* Dưới Header */
+    height: calc(100vh - 75px);
+    padding: 20px 0;
+    transition: 0.3s;
+}
+
+.sidebar-header {
+    padding: 0 25px 25px;
+    color: #4da3ff;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.sidebar-nav ul li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: #aaa;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar-nav ul li a:hover {
+    background: rgba(77, 163, 255, 0.1);
+    color: #fff;
+}
+
+/* Phần nội dung chính bên phải */
+.admin-main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-x: hidden;
+}
