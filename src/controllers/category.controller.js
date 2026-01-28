@@ -1,3 +1,4 @@
+// src/controllers/category.controller.js
 const Category = require('../models/category.model');
 
 exports.getCategoryManagement = async (req, res) => {
@@ -5,18 +6,18 @@ exports.getCategoryManagement = async (req, res) => {
         const categories = await Category.getAll();
         res.render('admin/category-list', { 
             categories,
-            layout: 'main' // Đảm bảo sử dụng layout admin/main của bạn
+            // Đảm bảo hiển thị đúng layout nếu bạn có chia layout admin riêng
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Lỗi hệ thống khi tải danh mục');
+        res.status(500).send('Lỗi tải danh mục');
     }
 };
 
 exports.postAddCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
-        if (!name) return res.status(400).send('Tên danh mục không được để trống');
+        if (!name) return res.status(400).send('Tên không được để trống');
         
         await Category.create(name, description);
         res.redirect('/admin/categories');
@@ -26,11 +27,14 @@ exports.postAddCategory = async (req, res) => {
     }
 };
 
+// Thêm chức năng xóa danh mục nếu chưa có
 exports.getDeleteCategory = async (req, res) => {
     try {
-        await Category.delete(req.params.id);
+        const id = req.params.id;
+        await Category.delete(id);
         res.redirect('/admin/categories');
     } catch (error) {
+        console.error(error);
         res.status(500).send('Lỗi khi xóa danh mục');
     }
 };

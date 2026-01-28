@@ -23,17 +23,25 @@ exports.getAddBook = async (req, res) => {
     }
 };
 
-// 3. Xử lý thêm sách mới (ĐÃ SỬA: Lấy thêm category_id)
+// 3. Xử lý thêm sách mới
 exports.postAddBook = async (req, res) => {
     try {
         const { title, author, description, price, isbn, category_id } = req.body;
         const image_url = req.file ? req.file.filename : 'default-book.jpg';
         
-        // Truyền thêm category_id vào model
-        await Book.create({ title, author, description, image_url, price, isbn, category_id });
+        // Đảm bảo dữ liệu không bị lỗi khi người dùng không chọn danh mục
+        await Book.create({ 
+            title, 
+            author, 
+            description, 
+            image_url, 
+            price, 
+            isbn: isbn || null, 
+            category_id: category_id || null 
+        });
         res.redirect('/admin');
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi thêm sách:", error);
         res.status(500).send('Lỗi khi thêm sách');
     }
 };
@@ -54,7 +62,7 @@ exports.getEditBook = async (req, res) => {
     }
 };
 
-// 5. Xử lý cập nhật thông tin sách (ĐÃ SỬA: Cập nhật category_id)
+// 5. Xử lý cập nhật thông tin sách
 exports.postEditBook = async (req, res) => {
     try {
         const { title, author, description, price, isbn, category_id } = req.body;
@@ -63,11 +71,18 @@ exports.postEditBook = async (req, res) => {
         const oldBook = await Book.getById(bookId);
         const image_url = req.file ? req.file.filename : oldBook.image_url;
 
-        // Cập nhật bao gồm cả category_id mới
-        await Book.update(bookId, { title, author, description, image_url, price, isbn, category_id });
+        await Book.update(bookId, { 
+            title, 
+            author, 
+            description, 
+            image_url, 
+            price, 
+            isbn: isbn || null, 
+            category_id: category_id || null 
+        });
         res.redirect('/admin');
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi cập nhật:", error);
         res.status(500).send('Lỗi khi cập nhật sách');
     }
 };
@@ -96,23 +111,30 @@ exports.getUserManagement = async (req, res) => {
     }
 };
 
-exports.postUpdateUserRole = async (req, res) => {
-    try {
-        const { id, role } = req.body;
-        const newRole = (role === 'admin') ? 'user' : 'admin';
-        await User.updateRole(id, newRole);
-        res.redirect('/admin/users');
-    } catch (error) {
-        res.status(500).send('Lỗi cập nhật quyền');
-    }
-};
 
 exports.postDeleteUser = async (req, res) => {
     try {
-        await User.delete(req.params.id);
+        const userId = req.params.id;
+        
+        // 1. Lấy thông tin người dùng để kiểm tra role trước khi xóa
+        const user = await User.getById(userId);
+
+        if (!user) {
+            return res.status(404).send('Người dùng không tồn tại');
+        }
+
+        // 2. Kiểm tra nếu là tài khoản admin thì không cho phép xóa
+        if (user.role === 'admin') {
+            return res.status(403).send('Không thể xóa tài khoản quản trị hệ thống (Admin)!');
+        }
+
+        // 3. Nếu là user bình thường thì tiến hành xóa
+        await User.delete(userId);
         res.redirect('/admin/users');
+        
     } catch (error) {
-        res.status(500).send('Lỗi khi xóa người dùng');
+        console.error("Lỗi khi xóa người dùng:", error);
+        res.status(500).send('Lỗi hệ thống khi xóa người dùng');
     }
 };
 

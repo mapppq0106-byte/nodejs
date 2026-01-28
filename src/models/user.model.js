@@ -26,6 +26,11 @@ const User = {
 
     delete: async (id) => {
         return await db.execute('DELETE FROM users WHERE id = ?', [id]);
+    },
+
+    getById: async (id) => {
+    const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+    return rows[0];
     }
 };
 

@@ -60,8 +60,8 @@ INSERT IGNORE INTO categories (id, name, description) VALUES
 -- Thêm Người dùng (Admin và User mẫu)
 INSERT IGNORE INTO users (id, username, password, email, role) VALUES 
 (1, 'admin', '123', 'admin@gmail.com', 'admin'),
-(2, 'quyphan', '123', 'quyphan@gmail.com', 'user'), 
-(3, 'otaku', '123', 'otaku@gmail.com', 'user'); 
+(2, 'quyphan', '123', 'quyphan@gmail.com'), 
+(3, 'otaku', '123', 'otaku@gmail.com'); 
 
 -- Thêm Sách mẫu (Gán vào các category_id tương ứng)
 INSERT IGNORE INTO books (title, author, description, image_url, price, isbn, published_date, view_count, category_id) VALUES 

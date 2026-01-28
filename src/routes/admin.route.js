@@ -30,7 +30,7 @@ router.post('/admin/delete/:id', isAdmin, adminController.postDeleteBook);
 
 // Routes Quản lý người dùng (Mới)
 router.get('/admin/users', isAdmin, adminController.getUserManagement);
-router.post('/admin/users/update-role', isAdmin, adminController.postUpdateUserRole);
+// router.post('/admin/users/update-role', isAdmin, adminController.postUpdateUserRole);
 router.post('/admin/users/delete/:id', isAdmin, adminController.postDeleteUser);
 
 // Quản lý đánh giá

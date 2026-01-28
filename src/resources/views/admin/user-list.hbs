@@ -20,16 +20,16 @@
                 <td>{{this.id}}</td>
                 <td>{{this.username}}</td>
                 <td>{{this.email}}</td>
-                <td><span class="badge">{{this.role}}</span></td>
+                {{!-- <td><span class="badge">{{this.role}}</span></td> --}}
                 <td>
                     <div style="display: flex; gap: 10px;">
-                        <form action="/admin/users/update-role" method="POST">
+                        {{!-- <form action="/admin/users/update-role" method="POST">
                             <input type="hidden" name="id" value="{{this.id}}">
                             <input type="hidden" name="role" value="{{this.role}}">
                             <button type="submit" style="background: #4da3ff; border: none; padding: 5px 10px; color: white; border-radius: 4px; cursor: pointer;">
                                 Đổi quyền
                             </button>
-                        </form>
+                        </form> --}}
                         
                         <form action="/admin/users/delete/{{this.id}}" method="POST" onsubmit="return confirm('Xóa người dùng này?')">
                             <button type="submit" style="background: #ff4444; border: none; padding: 5px 10px; color: white; border-radius: 4px; cursor: pointer;">
