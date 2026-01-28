@@ -1,10 +1,11 @@
 const Book = require('../models/book.model');
-const User = require('../models/user.model'); // Import thêm User Model
+const User = require('../models/user.model');
+const Category = require('../models/category.model');
 
-// Hiển thị danh sách quản lý sách cho admin
+// 1. Hiển thị danh sách quản lý sách cho admin
 exports.getDashboard = async (req, res) => {
     try {
-        const books = await Book.getAll();
+        const books = await Book.getAll(); // Model này đã Join với categories để lấy category_name
         res.render('admin/dashboard', { books });
     } catch (error) {
         console.error(error);
@@ -12,18 +13,24 @@ exports.getDashboard = async (req, res) => {
     }
 };
 
-// Hiển thị form thêm sách mới
-exports.getAddBook = (req, res) => {
-    res.render('admin/add-book');
+// 2. Hiển thị form thêm sách mới
+exports.getAddBook = async (req, res) => {
+    try {
+        const categories = await Category.getAll();
+        res.render('admin/add-book', { categories }); // Truyền categories để hiển thị trong <select>
+    } catch (error) {
+        res.status(500).send('Không thể lấy danh mục cho form');
+    }
 };
 
-// Xử lý thêm sách mới
+// 3. Xử lý thêm sách mới (ĐÃ SỬA: Lấy thêm category_id)
 exports.postAddBook = async (req, res) => {
     try {
-        const { title, author, description, price, isbn } = req.body;
+        const { title, author, description, price, isbn, category_id } = req.body;
         const image_url = req.file ? req.file.filename : 'default-book.jpg';
         
-        await Book.create({ title, author, description, image_url, price, isbn });
+        // Truyền thêm category_id vào model
+        await Book.create({ title, author, description, image_url, price, isbn, category_id });
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
@@ -31,28 +38,33 @@ exports.postAddBook = async (req, res) => {
     }
 };
 
-// Hiển thị form chỉnh sửa sách
+// 4. Hiển thị form chỉnh sửa sách (ĐÃ SỬA: Lấy thêm danh sách categories)
 exports.getEditBook = async (req, res) => {
     try {
-        const book = await Book.getById(req.params.id);
+        const bookId = req.params.id;
+        const book = await Book.getById(bookId);
+        const categories = await Category.getAll(); // Cần cái này để người dùng chọn lại danh mục khi sửa
+
         if (!book) return res.status(404).send('Không tìm thấy sách');
-        res.render('admin/edit-book', { book });
+        
+        res.render('admin/edit-book', { book, categories });
     } catch (error) {
+        console.error(error);
         res.status(500).send('Lỗi hệ thống');
     }
 };
 
-// Xử lý cập nhật thông tin sách
+// 5. Xử lý cập nhật thông tin sách (ĐÃ SỬA: Cập nhật category_id)
 exports.postEditBook = async (req, res) => {
     try {
-        const { title, author, description, price, isbn } = req.body;
+        const { title, author, description, price, isbn, category_id } = req.body;
         const bookId = req.params.id;
         
-        // Lấy lại thông tin cũ để giữ ảnh nếu người dùng không upload ảnh mới
         const oldBook = await Book.getById(bookId);
         const image_url = req.file ? req.file.filename : oldBook.image_url;
 
-        await Book.update(bookId, { title, author, description, image_url, price, isbn });
+        // Cập nhật bao gồm cả category_id mới
+        await Book.update(bookId, { title, author, description, image_url, price, isbn, category_id });
         res.redirect('/admin');
     } catch (error) {
         console.error(error);
@@ -60,22 +72,20 @@ exports.postEditBook = async (req, res) => {
     }
 };
 
-// Xử lý xóa sách
-// File: admin.controller.js
+// 6. Xử lý xóa sách
 exports.postDeleteBook = async (req, res) => {
     try {
         const bookId = req.params.id;
-        await Book.delete(bookId); // Gọi hàm delete từ book.model.js
-        res.redirect('/admin');   // Xóa xong quay lại trang Dashboard
+        await Book.delete(bookId);
+        res.redirect('/admin');
     } catch (error) {
         console.error("Lỗi xóa sách:", error);
         res.status(500).send('Lỗi khi xóa sách. Vui lòng kiểm tra lại cơ sở dữ liệu!');
     }
 };
 
-// --- CHỨC NĂNG MỚI: QUẢN LÝ NGƯỜI DÙNG ---
+// --- QUẢN LÝ NGƯỜI DÙNG ---
 
-// Hiển thị danh sách người dùng
 exports.getUserManagement = async (req, res) => {
     try {
         const users = await User.getAll();
@@ -86,7 +96,6 @@ exports.getUserManagement = async (req, res) => {
     }
 };
 
-// Thay đổi quyền (Admin <-> User)
 exports.postUpdateUserRole = async (req, res) => {
     try {
         const { id, role } = req.body;
@@ -98,7 +107,6 @@ exports.postUpdateUserRole = async (req, res) => {
     }
 };
 
-// Xóa tài khoản người dùng
 exports.postDeleteUser = async (req, res) => {
     try {
         await User.delete(req.params.id);
@@ -108,7 +116,8 @@ exports.postDeleteUser = async (req, res) => {
     }
 };
 
-// Hiển thị trang quản lý tất cả đánh giá
+// --- QUẢN LÝ ĐÁNH GIÁ ---
+
 exports.getReviewManagement = async (req, res) => {
     try {
         const reviews = await Book.getAllReviews();
@@ -118,7 +127,6 @@ exports.getReviewManagement = async (req, res) => {
     }
 };
 
-// Xử lý xóa đánh giá
 exports.postDeleteReview = async (req, res) => {
     try {
         await Book.deleteReview(req.params.id);

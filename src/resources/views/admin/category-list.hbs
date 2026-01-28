@@ -1,0 +1,45 @@
+<div class="container" style="margin-left: 260px; padding-top: 20px;">
+    <h2 style="margin-bottom: 25px; color: #fff;">Quản lý danh mục sách</h2>
+
+    <div style="background: #1e1e1e; padding: 25px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px;">
+        <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Thêm danh mục mới</h3>
+        <form action="/admin/categories/add" method="POST">
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px;">Tên danh mục:</label>
+                <input type="text" name="name" required class="form-input" style="width: 100%; margin-bottom: 15px;">
+            </div>
+            <div class="form-group">
+                <label style="display: block; margin-bottom: 8px;">Mô tả:</label>
+                <textarea name="description" class="form-input" style="width: 100%; margin-bottom: 15px;" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn-auth" style="width: auto; padding: 10px 25px;">Lưu danh mục</button>
+        </form>
+    </div>
+
+    <table class="table" style="width: 100%; border-collapse: collapse; background: #1e1e1e; border-radius: 12px; overflow: hidden;">
+        <thead>
+            <tr style="background: #2c2c2c; text-align: left;">
+                <th style="padding: 15px;">ID</th>
+                <th style="padding: 15px;">Tên danh mục</th>
+                <th style="padding: 15px;">Mô tả</th>
+                <th style="padding: 15px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each categories}}
+            <tr style="border-bottom: 1px solid #333;">
+                <td style="padding: 15px;">{{this.id}}</td>
+                <td style="padding: 15px; font-weight: bold; color: #007bff;">{{this.name}}</td>
+                <td style="padding: 15px; color: #bbb;">{{this.description}}</td>
+                <td style="padding: 15px;">
+                    <a href="/admin/categories/delete/{{this.id}}" 
+                       onclick="return confirm('Khi xóa danh mục, các sách thuộc danh mục này sẽ trở về trạng thái không có danh mục. Bạn chắc chứ?')" 
+                       style="color: #ff4d4d; text-decoration: none;">
+                       <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

@@ -4,7 +4,12 @@
         <div style="flex: 1;">
             <h1 style="margin-bottom: 10px;">{{book.title}}</h1> 
             <p style="color: #bbb; font-size: 1.1rem;">Tác giả: <strong>{{book.author}}</strong></p> 
+
+            {{!-- THÊM DÒNG NÀY --}}
+            <p><strong>Danh mục:</strong> <span class="badge-category">{{book.category_name}}</span></p>
+
             <p style="color: #888;">ISBN: {{book.isbn}}</p> 
+
             
             <p style="color: #888; font-size: 0.9rem;">Ngày xuất bản: {{book.published_date}}</p>
             <p style="color: #888; font-size: 0.9rem;">Lượt xem: {{book.view_count}}</p>

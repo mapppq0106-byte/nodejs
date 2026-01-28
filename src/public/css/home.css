@@ -115,3 +115,14 @@ body {
     text-decoration: none;
 }
 
+.badge-category {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border: 1px solid #ced4da;
+    display: inline-block;
+    margin-bottom: 10px;
+}
