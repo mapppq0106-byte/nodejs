@@ -1,140 +1,154 @@
 /* Tổng thể Header */
 header {
-    background: rgba(24, 24, 24, 0.95); /* Đồng bộ với màu Sidebar */
-    backdrop-filter: blur(12px); /* Hiệu ứng mờ kính hiện đại */
-    padding: 12px 0;
+    background: #ffffff;
+    padding: 0;
+    height: 70px; /* Cố định chiều cao để dễ căn giữa */
     position: sticky;
     top: 0;
-    z-index: 1001; /* Đảm bảo luôn nằm trên Sidebar */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    border-bottom: 1px solid #f1f1f1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
 }
 
 .header-container {
-    max-width: 1400px; /* Mở rộng để phù hợp với Layout Sidebar */
+    max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px;
+    padding: 0 20px;
 }
 
-/* Logo */
+/* 1. Logo */
 .logo a {
-    font-size: 22px;
-    font-weight: 900;
-    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    color: #007bff;
     text-decoration: none;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    letter-spacing: -0.5px;
 }
 
-/* Thanh tìm kiếm hiện đại - Căn giữa Header */
+/* 2. Thanh tìm kiếm (Trung tâm) */
 .search-form {
+    flex: 0 1 550px; /* Độ rộng linh hoạt tối đa 550px */
+    margin: 0 30px;
+}
+
+.search-box-wrapper {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 2px 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: 0.3s;
-    flex: 0 1 450px; /* Độ rộng tối đa của thanh tìm kiếm */
+    background: #f1f3f5;
+    border-radius: 50px;
+    padding: 2px 5px 2px 15px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
 }
 
-.search-form:focus-within {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: #4da3ff;
-    box-shadow: 0 0 15px rgba(77, 163, 255, 0.1);
+.search-box-wrapper:focus-within {
+    background: #fff;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.category-select {
+    background: transparent;
+    border: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    color: #555;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    max-width: 140px;
 }
 
 .search-input {
     background: transparent;
     border: none;
-    color: #fff;
-    padding: 10px;
+    padding: 10px 15px;
+    flex: 1;
     outline: none;
-    width: 100%;
     font-size: 14px;
+    color: #333;
 }
 
 .search-btn {
-    background: transparent;
+    background: #007bff;
     border: none;
-    color: #888;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     cursor: pointer;
-    padding: 5px;
-    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
 }
 
 .search-btn:hover {
-    color: #fff;
+    background: #0056b3;
 }
 
-/* Menu Điều hướng bên phải */
-.nav-menu ul {
-    display: flex;
-    list-style: none;
-    gap: 25px;
-    align-items: center;
-}
-
-.nav-menu a {
-    color: #aaa;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
-    transition: 0.3s;
-}
-
-.nav-menu a:hover {
-    color: #4da3ff;
-}
-
-/* Auth Section */
+/* 3. Auth Section */
 .auth-buttons {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
 }
 
-.user-welcome {
-    color: #4da3ff;
-    font-size: 13px;
-    font-weight: 600;
-    margin-right: 5px;
-}
-
-/* Nút Đăng xuất kiểu mới */
-.btn-logout-nav {
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #ff4d4d;
-    border: 1px solid rgba(255, 77, 77, 0.2);
-    background: transparent;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.btn-logout-nav:hover {
-    background: rgba(255, 77, 77, 0.1);
-    border-color: #ff4d4d;
-    box-shadow: 0 0 10px rgba(255, 77, 77, 0.1);
-}
-
-/* Các nút Login/Signup cho khách */
-.btn-login-nav {
-    color: #fff;
-    text-decoration: none;
+.user-name {
     font-size: 14px;
+    color: #444;
+}
+
+.btn-login-nav {
+    color: #555;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-login-nav:hover {
+    color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
 .btn-signup-nav {
-    background: #fff;
-    color: #121212;
-    padding: 8px 20px;
-    border-radius: 6px;
-    font-weight: 700;
+    color: #555;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
     text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-signup-nav:hover {
+    color: #007bff;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.btn-logout-nav {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 15px;
+    border: 1px solid #f8d7da;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.btn-logout-nav:hover {
+    background: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
 }

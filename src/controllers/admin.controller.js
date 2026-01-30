@@ -2,14 +2,19 @@ const Book = require('../models/book.model');
 const User = require('../models/user.model');
 const Category = require('../models/category.model');
 
+// Hàm tiện ích để gửi thông báo alert và quay lại
+const showAlertAndBack = (res, message) => {
+    return res.send(`<script>alert("${message}"); window.history.back();</script>`);
+};
+
 // 1. Hiển thị danh sách quản lý sách cho admin
 exports.getDashboard = async (req, res) => {
     try {
-        const books = await Book.getAll(); // Model này đã Join với categories để lấy category_name
+        const books = await Book.getAll();
         res.render('admin/dashboard', { books });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Lỗi tải trang quản trị');
+        showAlertAndBack(res, 'Lỗi hệ thống: Không thể tải danh sách sách.');
     }
 };
 
@@ -17,9 +22,9 @@ exports.getDashboard = async (req, res) => {
 exports.getAddBook = async (req, res) => {
     try {
         const categories = await Category.getAll();
-        res.render('admin/add-book', { categories }); // Truyền categories để hiển thị trong <select>
+        res.render('admin/add-book', { categories });
     } catch (error) {
-        res.status(500).send('Không thể lấy danh mục cho form');
+        showAlertAndBack(res, 'Không thể lấy danh mục cho form thêm sách.');
     }
 };
 
@@ -29,36 +34,31 @@ exports.postAddBook = async (req, res) => {
         const { title, author, description, price, isbn, category_id } = req.body;
         const image_url = req.file ? req.file.filename : 'default-book.jpg';
         
-        // Đảm bảo dữ liệu không bị lỗi khi người dùng không chọn danh mục
         await Book.create({ 
-            title, 
-            author, 
-            description, 
-            image_url, 
-            price, 
+            title, author, description, image_url, price, 
             isbn: isbn || null, 
             category_id: category_id || null 
         });
         res.redirect('/admin');
     } catch (error) {
         console.error("Lỗi thêm sách:", error);
-        res.status(500).send('Lỗi khi thêm sách');
+        showAlertAndBack(res, 'Lỗi khi thêm sách mới. Vui lòng kiểm tra lại dữ liệu.');
     }
 };
 
-// 4. Hiển thị form chỉnh sửa sách (ĐÃ SỬA: Lấy thêm danh sách categories)
+// 4. Hiển thị form chỉnh sửa sách
 exports.getEditBook = async (req, res) => {
     try {
         const bookId = req.params.id;
         const book = await Book.getById(bookId);
-        const categories = await Category.getAll(); // Cần cái này để người dùng chọn lại danh mục khi sửa
+        const categories = await Category.getAll();
 
-        if (!book) return res.status(404).send('Không tìm thấy sách');
+        if (!book) return showAlertAndBack(res, 'Không tìm thấy sách yêu cầu.');
         
         res.render('admin/edit-book', { book, categories });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Lỗi hệ thống');
+        showAlertAndBack(res, 'Lỗi hệ thống khi tải thông tin chỉnh sửa.');
     }
 };
 
@@ -72,18 +72,14 @@ exports.postEditBook = async (req, res) => {
         const image_url = req.file ? req.file.filename : oldBook.image_url;
 
         await Book.update(bookId, { 
-            title, 
-            author, 
-            description, 
-            image_url, 
-            price, 
+            title, author, description, image_url, price, 
             isbn: isbn || null, 
             category_id: category_id || null 
         });
         res.redirect('/admin');
     } catch (error) {
         console.error("Lỗi cập nhật:", error);
-        res.status(500).send('Lỗi khi cập nhật sách');
+        showAlertAndBack(res, 'Lỗi khi cập nhật thông tin sách.');
     }
 };
 
@@ -95,7 +91,7 @@ exports.postDeleteBook = async (req, res) => {
         res.redirect('/admin');
     } catch (error) {
         console.error("Lỗi xóa sách:", error);
-        res.status(500).send('Lỗi khi xóa sách. Vui lòng kiểm tra lại cơ sở dữ liệu!');
+        showAlertAndBack(res, 'Lỗi: Không thể xóa sách này. Có thể sách đang liên kết với dữ liệu khác.');
     }
 };
 
@@ -107,34 +103,27 @@ exports.getUserManagement = async (req, res) => {
         res.render('admin/user-list', { users });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Lỗi tải danh sách người dùng');
+        showAlertAndBack(res, 'Lỗi: Không thể tải danh sách người dùng.');
     }
 };
-
 
 exports.postDeleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
-        // 1. Lấy thông tin người dùng để kiểm tra role trước khi xóa
         const user = await User.getById(userId);
 
-        if (!user) {
-            return res.status(404).send('Người dùng không tồn tại');
-        }
+        if (!user) return showAlertAndBack(res, 'Người dùng này không tồn tại.');
 
-        // 2. Kiểm tra nếu là tài khoản admin thì không cho phép xóa
         if (user.role === 'admin') {
-            return res.status(403).send('Không thể xóa tài khoản quản trị hệ thống (Admin)!');
+            return showAlertAndBack(res, 'Hành động bị từ chối: Không thể xóa tài khoản Admin!');
         }
 
-        // 3. Nếu là user bình thường thì tiến hành xóa
         await User.delete(userId);
         res.redirect('/admin/users');
         
     } catch (error) {
         console.error("Lỗi khi xóa người dùng:", error);
-        res.status(500).send('Lỗi hệ thống khi xóa người dùng');
+        showAlertAndBack(res, 'Lỗi hệ thống khi xóa người dùng.');
     }
 };
 
@@ -145,7 +134,7 @@ exports.getReviewManagement = async (req, res) => {
         const reviews = await Book.getAllReviews();
         res.render('admin/review-list', { reviews });
     } catch (error) {
-        res.status(500).send('Lỗi tải danh sách đánh giá');
+        showAlertAndBack(res, 'Lỗi: Không thể tải danh sách đánh giá.');
     }
 };
 
@@ -154,6 +143,6 @@ exports.postDeleteReview = async (req, res) => {
         await Book.deleteReview(req.params.id);
         res.redirect('/admin/reviews');
     } catch (error) {
-        res.status(500).send('Lỗi khi xóa đánh giá');
+        showAlertAndBack(res, 'Lỗi: Không thể xóa đánh giá này.');
     }
 };

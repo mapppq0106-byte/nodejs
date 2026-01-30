@@ -1,26 +1,31 @@
 <header>
     <div class="header-container">
-        <div class="logo"><a href="/">BOOK STORE</a></div>
+        <div class="logo">
+            <a href="/">BOOK STORE</a>
+        </div>
 
         <form action="/" method="GET" class="search-form">
-            <input type="text" name="search" placeholder="Tìm tên sách, tác giả..." class="search-input" value="{{keyword}}">
-            <button type="submit" class="search-btn">
-                <i class="fas fa-search"></i> Tìm
-            </button>
-        </form>
+            <div class="search-box-wrapper">
+                <select name="category" class="category-select" onchange="this.form.submit()">
+                    <option value="">Tất cả loại sách</option>
+                    {{#each allCategories}}
+                        <option value="{{this.id}}" {{#if (eq ../currentCategory this.id)}}selected{{/if}}>
+                            {{this.name}}
+                        </option>
+                    {{/each}}
+                </select>
 
-        {{!-- <nav class="nav-menu">
-            <ul>
-                {{#if (eq user.role 'admin')}}
-                    <li><a href="/admin">Quản lý sách</a></li>
-                    <li><a href="/admin/users">Quản lý người dùng</a></li>
-                    <li><a href="/admin/reviews">Quản lý đánh giá</a></li>
-                {{/if}}
-            </ul>
-        </nav> --}}
+                <input type="text" name="search" placeholder="Tìm tên sách, tác giả..." class="search-input" value="{{keyword}}">
+                
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search">Tìm</i>
+                </button>
+            </div>
+        </form>
 
         <div class="auth-buttons">
             {{#if user}}
+                <span class="user-name">Chào, <strong>{{user.username}}</strong></span>
                 <a href="/logout" class="btn-logout-nav">Đăng xuất</a>
             {{else}}
                 <a href="/login" class="btn-login-nav">Đăng nhập</a>

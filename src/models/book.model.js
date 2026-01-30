@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const Book = {
-    // 1. Lấy toàn bộ danh sách sách (Đã JOIN lấy tên danh mục)
+    // 1. Lấy toàn bộ danh sách sách
     getAll: async () => {
         const sql = `
             SELECT b.*, c.name as category_name 
@@ -12,7 +12,32 @@ const Book = {
         return rows;
     },
 
-    // 2. Tìm kiếm sách
+    // 2. Hàm tìm kiếm và lọc theo danh mục (MỚI CẬP NHẬT)
+    searchBooks: async (keyword, categoryId) => {
+        let sql = `
+            SELECT b.*, c.name as category_name 
+            FROM books b 
+            LEFT JOIN categories c ON b.category_id = c.id
+            WHERE 1=1`;
+        const params = [];
+
+        if (keyword) {
+            sql += ` AND (b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ?)`;
+            const searchTerm = `%${keyword}%`;
+            params.push(searchTerm, searchTerm, searchTerm);
+        }
+
+        if (categoryId) {
+            sql += ` AND b.category_id = ?`;
+            params.push(categoryId);
+        }
+
+        sql += ` ORDER BY b.id DESC`;
+        const [rows] = await db.execute(sql, params);
+        return rows;
+    },
+
+    // 3. Tìm kiếm cũ (giữ lại để tương thích nếu cần)
     search: async (keyword) => {
         const sql = `
             SELECT b.*, c.name as category_name 
@@ -24,7 +49,7 @@ const Book = {
         return rows;
     },
 
-    // 3. Lấy thông tin chi tiết (Đã JOIN lấy tên danh mục)
+    // 4. Lấy thông tin chi tiết
     getById: async (id) => {
         const sql = `
             SELECT b.*, c.name as category_name 
@@ -35,7 +60,7 @@ const Book = {
         return rows[0];
     },
 
-    // 4. Lấy reviews của sách
+    // 5. Lấy reviews của sách
     getReviews: async (bookId) => {
         const sql = `
             SELECT r.*, u.username 
@@ -47,7 +72,7 @@ const Book = {
         return rows;
     },
 
-    // 5. Lấy thông tin cho API
+    // 6. Lấy thông tin cho API
     getByIsbn: async (isbn) => {
         const sql = `
             SELECT b.*, 
@@ -61,7 +86,7 @@ const Book = {
         return rows[0];
     },
 
-    // 6. Lấy toàn bộ đánh giá cho Admin
+    // 7. Lấy toàn bộ đánh giá cho Admin
     getAllReviews: async () => {
         const sql = `
             SELECT r.*, u.username, b.title as book_title 
@@ -83,43 +108,23 @@ const Book = {
         return await db.execute(sql, [userId, bookId, rating, comment]);
     },
 
-    // 7. SỬA LỖI: Thêm sách mới (Bắt buộc phải có thêm 1 dấu ? cho category_id)
     create: async (data) => {
         const { title, author, description, image_url, price, isbn, category_id } = data;
         const sql = 'INSERT INTO books (title, author, description, image_url, price, isbn, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        return await db.execute(sql, [
-            title, 
-            author, 
-            description, 
-            image_url, 
-            price, 
-            isbn || null, 
-            category_id || null // Cần truyền giá trị này xuống DB
-        ]);
+        return await db.execute(sql, [title, author, description, image_url, price, isbn || null, category_id || null]);
     },
 
-    // 8. SỬA LỖI: Cập nhật thông tin sách (Phải update cả category_id)
     update: async (id, data) => {
         const { title, author, description, image_url, price, isbn, category_id } = data;
         const sql = `
             UPDATE books 
             SET title = ?, author = ?, description = ?, image_url = ?, price = ?, isbn = ?, category_id = ? 
             WHERE id = ?`;
-        return await db.execute(sql, [
-            title, 
-            author, 
-            description, 
-            image_url, 
-            price, 
-            isbn, 
-            category_id || null, // Cập nhật danh mục mới
-            id
-        ]);
+        return await db.execute(sql, [title, author, description, image_url, price, isbn, category_id || null, id]);
     },
 
     delete: async (id) => {
-        const sql = 'DELETE FROM books WHERE id = ?';
-        return await db.execute(sql, [id]);
+        return await db.execute('DELETE FROM books WHERE id = ?', [id]);
     },
     
     deleteReview: async (reviewId) => {
