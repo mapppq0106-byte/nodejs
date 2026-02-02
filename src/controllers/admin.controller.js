@@ -134,7 +134,7 @@ exports.getReviewManagement = async (req, res) => {
         const reviews = await Book.getAllReviews();
         res.render('admin/review-list', { reviews });
     } catch (error) {
-        showAlertAndBack(res, 'Lỗi: Không thể tải danh sách đánh giá.');
+        showAlertAndBack(res, 'Lỗi: Không thể tải danh sách đánh giá.');    
     }
 };
 
