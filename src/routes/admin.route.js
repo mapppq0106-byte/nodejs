@@ -38,6 +38,8 @@ router.get('/admin/reviews', isAdmin, adminController.getReviewManagement);
 router.post('/admin/reviews/delete/:id', isAdmin, adminController.postDeleteReview);
 router.get('/admin/dashboard', isAdmin, adminController.getDashboard);
 
+// Quản lý thống kê
+router.get('/admin/statistics', isAdmin, adminController.getStatistics);
 
 // --- ROUTES QUẢN LÝ DANH MỤC (Đã sửa lỗi) ---
 router.get('/admin/categories', isAdmin, categoryController.getCategoryManagement);

@@ -126,3 +126,17 @@ exports.postReviewApi = async (req, res) => {
         res.status(500).json({ success: false, message: "Lỗi server khi gửi đánh giá API" });
     }
 };
+
+exports.readBook = async (req, res) => {
+    try {
+        const bookId = req.params.id;
+        const chapterNum = req.query.chapter || 1;
+        const book = await Book.getById(bookId);
+        const chapters = await Book.getChapters(bookId);
+        const currentChapter = await Book.getChapterDetail(bookId, chapterNum);
+
+        res.render('read-book', { book, chapters, currentChapter });
+    } catch (error) {
+        res.status(500).send('Lỗi khi tải nội dung sách');
+    }
+};

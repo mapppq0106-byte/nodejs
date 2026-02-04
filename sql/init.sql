@@ -46,6 +46,16 @@ CREATE TABLE IF NOT EXISTS reviews (
     UNIQUE KEY unique_user_review (user_id, book_id) 
 );
 
+-- 6. Tạo bảng chapter 
+CREATE TABLE IF NOT EXISTS chapters (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    chapter_number INT NOT NULL,
+    title VARCHAR(255),
+    content TEXT,
+    CONSTRAINT fk_book_chapter FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
 -- ==========================================
 -- DỮ LIỆU MẪU (Dữ liệu khởi tạo hệ thống)
 -- ==========================================
@@ -78,3 +88,32 @@ INSERT IGNORE INTO reviews (user_id, book_id, rating, comment) VALUES
 (3, 1, 4, 'Nội dung tốt, ví dụ thực tế nhưng phần nâng cao hơi ít.'),
 (2, 4, 5, 'Kiến thức về Database rất chuẩn, giúp mình tối ưu được nhiều câu query.'),
 (3, 5, 5, 'Cuốn sách thay đổi cách mình giao tiếp với mọi người xung quanh.');
+
+-- Thêm chapter
+-- Dữ liệu chương cho sách ID 1 (Lập trình Node.js) - Đã có 2 chương, thêm chương 3
+INSERT INTO chapters (book_id, chapter_number, title, content) VALUES 
+(1, 3, 'Chương 3: Xây dựng Web Server đầu tiên', 'Trong chương này, chúng ta sẽ sử dụng module http có sẵn của Node.js để tạo một máy chủ cơ bản. Bạn sẽ hiểu về Request, Response và cách lắng nghe một cổng (port) trên localhost.');
+
+-- Dữ liệu chương cho sách ID 3 (TypeScript Nâng Cao)
+INSERT INTO chapters (book_id, chapter_number, title, content) VALUES 
+(3, 1, 'Chương 1: Interface và Types', 'TypeScript cho phép chúng ta định nghĩa cấu trúc dữ liệu chặt chẽ. Interface giúp tạo ra các bản thiết kế cho đối tượng, đảm bảo tính nhất quán trong toàn bộ mã nguồn.'),
+(3, 2, 'Chương 2: Generics nâng cao', 'Generics giúp chúng ta viết các hàm và lớp có thể tái sử dụng với nhiều kiểu dữ liệu khác nhau mà vẫn đảm bảo tính an toàn về kiểu (type-safety).'),
+(3, 3, 'Chương 3: Decorators trong TypeScript', 'Decorators là một tính năng mạnh mẽ cho phép chúng ta can thiệp vào quá trình khởi tạo lớp, phương thức hoặc thuộc tính. Đây là nền tảng của các framework như NestJS.');
+
+-- Dữ liệu chương cho sách ID 6 (Khởi nghiệp tinh gọn)
+INSERT INTO chapters (book_id, chapter_number, title, content) VALUES 
+(6, 1, 'Chương 1: Tầm nhìn', 'Mọi khởi nghiệp đều bắt đầu bằng một tầm nhìn, nhưng tầm nhìn đó cần được kiểm chứng thông qua các thử nghiệm thực tế thay vì chỉ nằm trên kế hoạch kinh doanh giấy.'),
+(6, 2, 'Chương 2: Vòng lặp Xây dựng - Đo lường - Học hỏi', 'Đây là cốt lõi của phương pháp Tinh gọn. Bạn cần xây dựng sản phẩm tối thiểu (MVP), đo lường phản ứng khách hàng và học hỏi để cải tiến liên tục.');
+
+-- Cập nhật lượt xem (view_count) để tạo sự khác biệt
+UPDATE books SET view_count = 1250 WHERE id = 6; -- Khởi nghiệp tinh gọn dẫn đầu lượt xem
+UPDATE books SET view_count = 890 WHERE id = 3;  -- TypeScript đứng thứ hai
+UPDATE books SET view_count = 450 WHERE id = 1;  -- Node.js đứng thứ ba
+
+-- Thêm thêm đánh giá để kiểm tra thống kê "Sách được đánh giá nhiều nhất"
+-- Sách ID 1 (Node.js) sẽ có nhiều đánh giá nhất
+INSERT IGNORE INTO reviews (user_id, book_id, rating, comment) VALUES 
+(1, 1, 5, 'Admin cũng rất thích cuốn này, cực kỳ hữu ích!'),
+(1, 3, 5, 'Kiến thức chuyên sâu tuyệt vời.'),
+(2, 6, 4, 'Cuốn sách gối đầu giường cho các startup.'),
+(3, 6, 5, 'Rất thực tế và dễ áp dụng.');

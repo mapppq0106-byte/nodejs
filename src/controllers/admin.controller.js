@@ -95,6 +95,16 @@ exports.postDeleteBook = async (req, res) => {
     }
 };
 
+// 7. lấy thống kê 
+exports.getStatistics = async (req, res) => {
+    try {
+        const stats = await Book.getStatistics();
+        res.render('admin/statistics', { stats });
+    } catch (error) {
+        res.status(500).send('Lỗi tải dữ liệu thống kê');
+    }
+};
+
 // --- QUẢN LÝ NGƯỜI DÙNG ---
 
 exports.getUserManagement = async (req, res) => {

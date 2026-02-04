@@ -98,6 +98,16 @@ const Book = {
         return rows;
     },
 
+    // 8. Lấy chương
+    getChapters: async (bookId) => {
+        const [rows] = await db.execute('SELECT * FROM chapters WHERE book_id = ? ORDER BY chapter_number ASC', [bookId]);
+        return rows;
+    },
+    getChapterDetail: async (bookId, chapterNumber) => {
+        const [rows] = await db.execute('SELECT * FROM chapters WHERE book_id = ? AND chapter_number = ?', [bookId, chapterNumber]);
+        return rows[0];
+    },
+
     checkUserReview: async (userId, bookId) => {
         const [rows] = await db.execute('SELECT * FROM reviews WHERE user_id = ? AND book_id = ?', [userId, bookId]);
         return rows.length > 0;
@@ -129,6 +139,26 @@ const Book = {
     
     deleteReview: async (reviewId) => {
         return await db.execute('DELETE FROM reviews WHERE id = ?', [reviewId]);
+    },
+
+    getStatistics: async () => {
+        // Thống kê số lượt đánh giá theo sách
+        const [reviewStats] = await db.execute(`
+            SELECT b.title, COUNT(r.id) as review_count 
+            FROM books b LEFT JOIN reviews r ON b.id = r.book_id 
+            GROUP BY b.id`);
+        
+        // Sách được đánh giá nhiều nhất
+        const [mostReviewed] = await db.execute(`
+            SELECT b.title, COUNT(r.id) as total_reviews 
+            FROM books b JOIN reviews r ON b.id = r.book_id 
+            GROUP BY b.id ORDER BY total_reviews DESC LIMIT 5`);
+
+        // Sách được xem nhiều nhất
+        const [mostViewed] = await db.execute(`
+            SELECT title, view_count FROM books ORDER BY view_count DESC LIMIT 5`);
+
+        return { reviewStats, mostReviewed, mostViewed };
     }
 };
 
