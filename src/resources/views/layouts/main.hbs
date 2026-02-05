@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/home.css">
-    {{#if (eq user.role 'admin')}}
-        <link rel="stylesheet" href="/css/sidebar.css">
-    {{/if}}
 </head>
-<body>
+<body style="padding-top: 100px;">
+
     {{> header}}
 
-    {{#if (eq user.role 'admin')}}
-        <div class="admin-layout-wrapper">
-            {{> sidebar}} <main class="admin-main-content">
-                {{{body}}}
-            </main>
-        </div>
-    {{else}}
-        <div class="container">
-            {{{body}}}
-        </div>
-    {{/if}}
+    <div class="container">
+        {{{body}}}
+    </div>
+
+    
+    
 </body>
 </html>

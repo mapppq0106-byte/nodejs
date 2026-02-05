@@ -1,62 +1,37 @@
 const Book = require('../models/book.model');
 
-// Hiển thị trang chủ và tìm kiếm (Cập nhật logic lọc danh mục)
+// Hiển thị trang chủ và tìm kiếm
 exports.getAllBooks = async (req, res) => {
     try {
         const keyword = req.query.search;
-        const categoryId = req.query.category; // Lấy ID danh mục từ dropdown header
-
-        let books;
-        
-        // Logic lọc kết hợp: Nếu có category hoặc có từ khóa tìm kiếm
-        if (categoryId || keyword) {
-            books = await Book.searchBooks(keyword ? keyword.trim() : '', categoryId || null);
-        } else {
-            books = await Book.getAll();
-        }
-
-        res.render('home', { 
-            books, 
-            keyword, 
-            currentCategory: categoryId // Gửi lại để header giữ trạng thái đã chọn
-        });
+        let books = keyword ? await Book.search(keyword.trim()) : await Book.getAll();
+        res.render('home', { books, keyword });
     } catch (error) {
-        console.error("Lỗi getAllBooks:", error);
         res.status(500).send('Lỗi khi lấy dữ liệu sách');
     }
 };
 
-// Hiển thị chi tiết sách
+// Hiển thị chi tiết sách và danh sách đánh giá
 exports.getBookDetail = async (req, res) => {
     try {
         const bookId = req.params.id;
         const book = await Book.getById(bookId);
-        
-        if (!book) {
-            return res.status(404).send('Không tìm thấy sách');
-        }
+        if (!book) return res.status(404).send('Không tìm thấy sách');
 
         const reviews = await Book.getReviews(bookId);
         
-        // Kiểm tra xem người dùng đã đánh giá chưa
         let hasReviewed = false;
         if (req.session.user) {
             hasReviewed = await Book.checkUserReview(req.session.user.id, bookId);
         }
 
-        res.render('book-detail', { 
-            book, 
-            reviews, 
-            hasReviewed,
-            user: req.session.user 
-        });
+        res.render('book-detail', { book, reviews, hasReviewed });
     } catch (error) {
-        console.error("Lỗi chi tiết:", error); 
         res.status(500).send('Lỗi tải trang chi tiết');
     }
 };
 
-// Xử lý gửi đánh giá mới
+// Xử lý gửi đánh giá mới (Web)
 exports.postReview = async (req, res) => {
     try {
         const bookId = req.params.id;
@@ -75,7 +50,7 @@ exports.postReview = async (req, res) => {
     }
 };
 
-// --- CÁC HÀM API JSON ---
+// Xử lý API trả về JSON theo ISBN (API)
 exports.getBookApi = async (req, res) => {
     try {
         const isbn = req.params.isbn;
@@ -91,29 +66,32 @@ exports.getBookApi = async (req, res) => {
             published_date: "2026-01-26",
             isbn: book.isbn,
             view_count: 100,
-            average_score: parseFloat(book.average_score || 0).toFixed(1)
+            average_score: parseFloat(book.average_score).toFixed(1)
         });
     } catch (error) {
         res.status(500).json({ error: "Lỗi hệ thống API" });
     }
 };
 
+// API Lấy toàn bộ danh sách sách (API JSON)
 exports.getBooksApi = async (req, res) => {
     try {
         const books = await Book.getAll();
-        res.status(200).json({ success: true, data: books });
+        res.status(200).json({
+            success: true,
+            data: books
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: "Lỗi lấy danh sách API" });
     }
 };
 
+// API Gửi đánh giá (API JSON)
 exports.postReviewApi = async (req, res) => {
     try {
         const bookId = req.params.id;
         const { rating, comment } = req.body;
         const userId = req.session.user ? req.session.user.id : null;
-
-        if (!userId) return res.status(401).json({ success: false, message: "Chưa đăng nhập" });
 
         const alreadyReviewed = await Book.checkUserReview(userId, bookId);
         if (alreadyReviewed) {
@@ -124,19 +102,5 @@ exports.postReviewApi = async (req, res) => {
         res.status(201).json({ success: true, message: "Đánh giá thành công!" });
     } catch (error) {
         res.status(500).json({ success: false, message: "Lỗi server khi gửi đánh giá API" });
-    }
-};
-
-exports.readBook = async (req, res) => {
-    try {
-        const bookId = req.params.id;
-        const chapterNum = req.query.chapter || 1;
-        const book = await Book.getById(bookId);
-        const chapters = await Book.getChapters(bookId);
-        const currentChapter = await Book.getChapterDetail(bookId, chapterNum);
-
-        res.render('read-book', { book, chapters, currentChapter });
-    } catch (error) {
-        res.status(500).send('Lỗi khi tải nội dung sách');
     }
 };

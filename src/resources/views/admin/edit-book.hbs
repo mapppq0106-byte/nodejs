@@ -10,20 +10,6 @@
                 <label>Tác giả</label>
                 <input type="text" name="author" class="form-input" value="{{book.author}}" required>
             </div>
-
-            <div class="form-group">
-                <label>Danh mục sách</label>
-                <select name="category_id" class="form-input" required>
-                    <option value="">-- Chọn danh mục --</option>
-                    {{#each categories}}
-                        {{!-- So sánh ID danh mục với ID của sách đang có --}}
-                        <option value="{{this.id}}" {{#if (eq this.id ../book.category_id)}}selected{{/if}}>
-                            {{this.name}}
-                        </option>
-                    {{/each}}
-                </select>
-            </div>
-
             <div class="form-group">
                 <label>Mã ISBN</label>
                 <input type="text" name="isbn" class="form-input" value="{{book.isbn}}">
