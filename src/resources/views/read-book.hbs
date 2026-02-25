@@ -1,22 +1,28 @@
-<div class="container" style="display: flex; gap: 20px;">
-    <div style="width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-        <h4>Danh sách chương</h4>
+<div class="container" style="display: flex; margin-top: 20px;">
+    <div class="sidebar" style="width: 25%; border-right: 1px solid #ddd; padding-right: 20px;">
+        <h3>Danh sách chương</h3>
         <ul style="list-style: none; padding: 0;">
             {{#each chapters}}
-                <li style="margin-bottom: 10px;">
-                    <a href="?chapter={{this.chapter_number}}" style="text-decoration:none; color: #007bff;">
-                        Chương {{this.chapter_number}}: {{this.title}}
-                    </a>
-                </li>
+            <li style="margin-bottom: 10px;">
+                <a href="/book/read/{{../book.id}}?chapter={{this.chapter_number}}" 
+                   style="text-decoration: none; color: #333; {{#if (eq this.chapter_number ../currentChapter.chapter_number)}} font-weight: bold; color: #007bff; {{/if}}">
+                    Chương {{this.chapter_number}}: {{this.title}}
+                </a>
+            </li>
             {{/each}}
         </ul>
     </div>
 
-    <div style="flex: 1; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
-        <h2>{{currentChapter.title}}</h2>
+    <div class="content" style="width: 75%; padding-left: 30px;">
+        <h1 style="text-align: center;">{{book.title}}</h1>
         <hr>
-        <div style="line-height: 1.8; font-size: 1.1rem; white-space: pre-line;">
-            {{currentChapter.content}}
-        </div>
+        {{#if currentChapter}}
+            <h2 style="color: #555;">{{currentChapter.title}}</h2>
+            <div class="book-text" style="font-size: 1.2rem; line-height: 1.8; margin-top: 20px;">
+                {{{currentChapter.content}}}
+            </div>
+        {{else}}
+            <div class="alert alert-info">Nội dung chương này đang được cập nhật hoặc không tồn tại.</div>
+        {{/if}}
     </div>
 </div>

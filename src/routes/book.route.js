@@ -19,4 +19,7 @@ router.get('/api/isbn/:isbn', bookController.getBookApi);
 // Gửi đánh giá API: POST http://localhost:3000/api/book/:id/review
 router.post('/api/book/:id/review', isAuthApi, bookController.postReviewApi);
 
+// Route này sẽ khớp với URL http://localhost:3000/book/read/:id
+router.get('/book/read/:id', bookController.readBook);
+
 module.exports = router;

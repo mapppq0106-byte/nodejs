@@ -11,39 +11,50 @@ exports.postSignup = async (req, res) => {
         await User.create(username, password, email);
         res.redirect('/login');
     } catch (error) {
+        console.error("Lỗi đăng ký:", error);
         res.status(500).send("Lỗi hệ thống khi đăng ký");
     }
 };
 
-// Xử lý đăng nhập và lưu thông tin vào Session
+// Xử lý đăng nhập
 exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findByUsername(username);
+        
         if (user && user.password === password) {
-            // Lưu id, username và role vào session để phân quyền
+            // Lưu thông tin vào session
             req.session.user = {
                 id: user.id,
                 username: user.username,
                 role: user.role
             };
-            res.redirect('/');
+
+            // Lấy đường dẫn cũ đã lưu, nếu không có thì về trang chủ '/'
+            const redirectUrl = req.session.returnTo || '/';
+            
+            // Xóa biến tạm returnTo sau khi đã dùng xong
+            delete req.session.returnTo;
+
+            console.log(`Đăng nhập thành công! Chuyển hướng về: ${redirectUrl}`);
+            res.redirect(redirectUrl);
         } else {
             res.status(401).send("Sai tài khoản hoặc mật khẩu");
         }
     } catch (error) {
+        console.error("Lỗi đăng nhập:", error);
         res.status(500).send("Lỗi hệ thống");
     }
 };
 
-// Xử lý đăng xuất hoàn toàn
+// Xử lý đăng xuất
 exports.logout = (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.error("Lỗi khi hủy session:", err);
             return res.redirect('/');
         }
-        res.clearCookie('connect.sid'); // Xóa cookie của phiên làm việc
-        res.redirect('/'); // Quay về trang chủ mặc định
+        res.clearCookie('connect.sid'); 
+        res.redirect('/'); 
     });
 };

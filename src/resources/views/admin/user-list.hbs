@@ -1,31 +1,48 @@
 <div class="container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Quản Lý Người Dùng</h2>
-        <a href="/admin" class="btn-auth" style="text-decoration: none;">Quản Lý Sách</a>
+        <h2><i class="fas fa-users"></i> Quản Lý Người Dùng</h2>
+        <a href="/admin" class="btn-auth" style="text-decoration: none; background: #6c757d;">
+            <i class="fas fa-book"></i> Quản Lý Sách
+        </a>
     </div>
 
-    <table>
+    <table class="admin-table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Tên đăng nhập</th>
                 <th>Email</th>
-                <th>Hành động</th>
+                <th>Vai trò</th>
+                <th style="text-align: center;">Hành động</th>
             </tr>
         </thead>
         <tbody>
             {{#each users}}
             <tr>
                 <td>{{this.id}}</td>
-                <td>{{this.username}}</td>
+                <td><strong>{{this.username}}</strong></td>
                 <td>{{this.email}}</td>
                 <td>
-                    <div style="display: flex; gap: 10px;">
-                        <form action="/admin/users/delete/{{this.id}}" method="POST" onsubmit="return confirm('Xóa người dùng này?')">
-                            <button type="submit" style="background: #ff4444; border: none; padding: 5px 10px; color: white; border-radius: 4px; cursor: pointer;">
-                                Xóa
-                            </button>
-                        </form>
+                    {{#if (eq this.role 'admin')}}
+                        <span style="background: #ffd700; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #000;">Admin</span>
+                    {{else}}
+                        <span style="background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #495057;">User</span>
+                    {{/if}}
+                </td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        {{#if (eq this.role 'admin')}}
+                            <span style="color: #999; font-style: italic; font-size: 13px;">
+                                <i class="fas fa-shield-alt"></i> Hệ thống
+                            </span>
+                        {{else}}
+                            <form action="/admin/users/delete/{{this.id}}" method="POST" 
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa người dùng [{{this.username}}]?')">
+                                <button type="submit" class="btn-delete" style="background: #ff4444; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </form>
+                        {{/if}}
                     </div>
                 </td>
             </tr>
@@ -33,3 +50,11 @@
         </tbody>
     </table>
 </div>
+
+<style>
+    .admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .admin-table th { background: #343a40; color: white; padding: 12px; text-align: left; }
+    .admin-table td { padding: 12px; border-bottom: 1px solid #dee2e6; }
+    .admin-table tr:hover { background-color: #f8f9fa; }
+    .btn-delete:hover { background: #cc0000 !important; }
+</style>
