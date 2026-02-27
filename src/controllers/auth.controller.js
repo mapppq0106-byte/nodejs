@@ -8,11 +8,29 @@ exports.getSignup = (req, res) => res.render('signup');
 exports.postSignup = async (req, res) => {
     const { username, password, email } = req.body;
     try {
+        // 1. Kiểm tra định dạng email và mật khẩu
+        const validation = User.validateData(email, password);
+        if (!validation.valid) {
+            return res.render('signup', { error: validation.message, data: req.body });
+        }
+
+        // 2. Kiểm tra email đã được sử dụng chưa
+        const existingEmail = await User.findByEmail(email);
+        if (existingEmail) {
+            return res.render('signup', { error: "Email này đã được đăng ký!", data: req.body });
+        }
+
+        // 3. Kiểm tra username đã tồn tại chưa
+        const existingUser = await User.findByUsername(username);
+        if (existingUser) {
+            return res.render('signup', { error: "Tên đăng nhập đã tồn tại!", data: req.body });
+        }
+
         await User.create(username, password, email);
         res.redirect('/login');
     } catch (error) {
         console.error("Lỗi đăng ký:", error);
-        res.status(500).send("Lỗi hệ thống khi đăng ký");
+        res.render('signup', { error: "Lỗi hệ thống khi đăng ký", data: req.body });
     }
 };
 

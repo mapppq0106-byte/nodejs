@@ -3,23 +3,23 @@ DROP DATABASE IF EXISTS book_store;
 CREATE DATABASE book_store;
 USE book_store;
 
--- 2. Tạo bảng Danh mục
+-- 2. Tạo bảng Danh mục (Giữ nguyên ràng buộc UNIQUE cho name)
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT
 );
 
--- 3. Tạo bảng Người dùng
+-- 3. Tạo bảng Người dùng (CẬP NHẬT: Thêm UNIQUE cho email)
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE, -- Thêm ràng buộc UNIQUE ở đây
     role VARCHAR(50) DEFAULT 'user'
 );
 
--- 4. Tạo bảng Sách
+-- 4. Tạo bảng Sách (Giữ nguyên ràng buộc UNIQUE cho title và isbn)
 CREATE TABLE books (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -31,7 +31,6 @@ CREATE TABLE books (
     published_date DATE DEFAULT (CURRENT_DATE),
     view_count INT DEFAULT 0,
     category_id INT,
-    -- CẬP NHẬT: Thêm ràng buộc UNIQUE cho title để chống trùng tên sách
     CONSTRAINT unique_book_title UNIQUE (title),
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
@@ -44,8 +43,8 @@ CREATE TABLE reviews (
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ,
+    CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES books(id),
     UNIQUE KEY unique_user_review (user_id, book_id) 
 );
 
@@ -56,11 +55,10 @@ CREATE TABLE chapters (
     chapter_number INT NOT NULL,
     title VARCHAR(255),
     content TEXT,
-    CONSTRAINT fk_book_chapter FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
-);
+    CONSTRAINT fk_book_chapter FOREIGN KEY (book_id) REFERENCES books(id) 
 
 -- ==========================================
--- DỮ LIỆU MẪU (Giữ nguyên)
+-- DỮ LIỆU MẪU
 -- ==========================================
 
 -- Thêm Danh mục
@@ -70,11 +68,11 @@ INSERT INTO categories (id, name, description) VALUES
 (3, 'Kỹ năng mềm', 'Phát triển bản thân, giao tiếp và quản lý thời gian.'),
 (4, 'Kinh tế', 'Kiến thức về tài chính, quản trị kinh doanh và khởi nghiệp.');
 
--- Thêm Người dùng
+-- Thêm Người dùng (Lưu ý: Mật khẩu mẫu nên đổi cho khớp với ràng buộc mới nếu cần)
 INSERT INTO users (id, username, password, email, role) VALUES 
-(1, 'admin', '123', 'admin@gmail.com', 'admin'),
-(2, 'quyphan', '123', 'quyphan@gmail.com', 'user'), 
-(3, 'otaku', '123', 'otaku@gmail.com', 'user'); 
+(1, 'admin', 'Admin@123', 'admin@gmail.com', 'admin'),
+(2, 'quyphan', 'User@123', 'quyphan@gmail.com', 'user'), 
+(3, 'otaku', 'Otaku@123', 'otaku@gmail.com', 'user'); 
 
 -- Thêm Sách mẫu
 INSERT INTO books (id, title, author, description, image_url, price, isbn, published_date, view_count, category_id) VALUES 

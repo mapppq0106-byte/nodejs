@@ -19,6 +19,18 @@ exports.postAddCategory = async (req, res) => {
         const { name, description } = req.body;
         if (!name) return res.status(400).send('Tên không được để trống');
         
+        // 1. Kiểm tra trùng tên
+        const isDuplicate = await Category.checkDuplicateName(name);
+        if (isDuplicate) {
+            // Lấy lại danh sách để render lại trang cùng thông báo lỗi
+            const categories = await Category.getAll();
+            return res.render('admin/category-list', { 
+                categories, 
+                error: "Tên danh mục này đã tồn tại!" 
+            });
+        }
+        
+        // 2. Nếu không trùng thì mới tạo
         await Category.create(name, description);
         res.redirect('/admin/categories');
     } catch (error) {
