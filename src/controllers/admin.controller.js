@@ -28,12 +28,13 @@ exports.getAddBook = async (req, res) => {
     }
 };
 
-// 3. Xử lý thêm sách mới
+// 3. Xử lý thêm sách mới (ĐÃ CẬP NHẬT RÀNG BUỘC TRÙNG TÊN)
 exports.postAddBook = async (req, res) => {
     try {
         const { title, author, description, price, isbn, category_id } = req.body;
         const image_url = req.file ? req.file.filename : 'default-book.jpg';
         
+        // Kiểm tra trùng tên sách trước khi tạo
         const isDuplicate = await Book.checkDuplicateTitle(title);
         if (isDuplicate) {
             return showAlertAndBack(res, 'Lỗi: Tên sách này đã tồn tại trong hệ thống!');
@@ -67,12 +68,13 @@ exports.getEditBook = async (req, res) => {
     }
 };
 
-// 5. Xử lý cập nhật thông tin sách
+// 5. Xử lý cập nhật thông tin sách (ĐÃ CẬP NHẬT RÀNG BUỘC TRÙNG TÊN)
 exports.postEditBook = async (req, res) => {
     try {
         const { title, author, description, price, isbn, category_id } = req.body;
         const bookId = req.params.id;
         
+        // Kiểm tra trùng tên nhưng loại trừ chính ID đang chỉnh sửa
         const isDuplicate = await Book.checkDuplicateTitle(title, bookId);
         if (isDuplicate) {
             return showAlertAndBack(res, 'Lỗi: Không thể đổi tên thành tên sách đã tồn tại!');
@@ -117,7 +119,6 @@ exports.getStatistics = async (req, res) => {
 
 // --- QUẢN LÝ NGƯỜI DÙNG ---
 
-// Hiển thị danh sách người dùng
 exports.getUserManagement = async (req, res) => {
     try {
         const users = await User.getAll();
@@ -128,8 +129,7 @@ exports.getUserManagement = async (req, res) => {
     }
 };
 
-// XỬ LÝ KHÓA / MỞ KHÓA NGƯỜI DÙNG (THAY THẾ POSTDELETEUSER)
-exports.postToggleLockUser = async (req, res) => {
+exports.postDeleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
         const user = await User.getById(userId);
@@ -137,19 +137,15 @@ exports.postToggleLockUser = async (req, res) => {
         if (!user) return showAlertAndBack(res, 'Người dùng này không tồn tại.');
 
         if (user.role === 'admin') {
-            return showAlertAndBack(res, 'Hành động bị từ chối: Không thể khóa tài khoản Admin!');
+            return showAlertAndBack(res, 'Hành động bị từ chối: Không thể xóa tài khoản Admin!');
         }
 
-        // Đảo ngược trạng thái khóa: nếu đang 0 (false) -> 1 (true) và ngược lại
-        const newLockStatus = user.is_locked ? 0 : 1;
-        const actionName = newLockStatus ? 'Khóa' : 'Mở khóa';
-
-        await User.updateLockStatus(userId, newLockStatus);
+        await User.delete(userId);
         res.redirect('/admin/users');
         
     } catch (error) {
-        console.error("Lỗi khi thay đổi trạng thái người dùng:", error);
-        showAlertAndBack(res, 'Lỗi hệ thống khi thực hiện thao tác.');
+        console.error("Lỗi khi xóa người dùng:", error);
+        showAlertAndBack(res, 'Lỗi hệ thống khi xóa người dùng.');
     }
 };
 
