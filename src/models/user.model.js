@@ -1,12 +1,10 @@
 const db = require('../config/db');
 
 const User = {
-    // --- CHỨC NĂNG CŨ: GIỮ NGUYÊN ---
+    // Tạo người dùng mới (đã gộp các phiên bản trùng lặp)
     create: async (username, password, email) => {
-        return await db.execute(
-            'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)',
-            [username, password, email, 'user']
-        );
+        const sql = 'INSERT INTO users (username, password, email, role, is_locked) VALUES (?, ?, ?, ?, ?)';
+        return await db.execute(sql, [username, password, email, 'user', 0]);
     },
 
     findByUsername: async (username) => {
@@ -14,9 +12,11 @@ const User = {
         return rows[0];
     },
 
-    // --- CHỨC NĂNG MỚI: QUẢN LÝ NGƯỜI DÙNG ---
+    // --- QUẢN LÝ NGƯỜI DÙNG ---
+
+    // Lấy danh sách: Cần lấy thêm trường is_locked để hiển thị ngoài giao diện
     getAll: async () => {
-        const [rows] = await db.execute('SELECT id, username, email, role FROM users');
+        const [rows] = await db.execute('SELECT id, username, email, role, is_locked FROM users');
         return rows;
     },
 
@@ -24,13 +24,34 @@ const User = {
         return await db.execute('UPDATE users SET role = ? WHERE id = ?', [newRole, id]);
     },
 
-    delete: async (id) => {
-        return await db.execute('DELETE FROM users WHERE id = ?', [id]);
+    // HÀM MỚI: Cập nhật trạng thái khóa thay cho hàm delete cũ
+    updateLockStatus: async (id, isLocked) => {
+        return await db.execute('UPDATE users SET is_locked = ? WHERE id = ?', [isLocked, id]);
     },
 
     getById: async (id) => {
-    const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
-    return rows[0];
+        const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+        return rows[0];
+    },
+
+    // Kiểm tra email đã tồn tại chưa
+    findByEmail: async (email) => {
+        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        return rows[0];
+    },
+
+    // Hàm kiểm tra định dạng email và độ mạnh mật khẩu
+    validateData: (email, password) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+        if (!emailRegex.test(email)) {
+            return { valid: false, message: "Định dạng email không hợp lệ (ví dụ: user@gmail.com)." };
+        }
+        if (!passwordRegex.test(password)) {
+            return { valid: false, message: "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số." };
+        }
+        return { valid: true };
     }
 };
 

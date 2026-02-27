@@ -1,23 +1,41 @@
 <div class="auth-wrapper">
     <div class="auth-container">
-        <h2>Đăng Ký</h2>
+        <h2>Đăng Ký Thành Viên</h2>
+        
+        {{!-- Hiển thị thông báo lỗi từ Server --}}
+        {{#if error}}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> {{error}}
+            </div>
+        {{/if}}
+
         <form action="/signup" method="POST">
             <div class="form-group">
                 <label>Tên đăng nhập</label>
-                <input type="text" name="username" class="form-input" required>
+                {{!-- Giữ lại username cũ nếu có lỗi để người dùng không phải nhập lại --}}
+                <input type="text" name="username" value="{{data.username}}" class="form-input" placeholder="Ví dụ: quyphan123" required>
             </div>
+            
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" class="form-input" required>
+                {{!-- type="email" giúp trình duyệt tự kiểm tra định dạng @ --}}
+                <input type="email" name="email" value="{{data.email}}" class="form-input" placeholder="example@gmail.com" required>
             </div>
+
             <div class="form-group">
                 <label>Mật khẩu</label>
-                <input type="password" name="password" class="form-input" required>
+                <input type="password" name="password" class="form-input" 
+                       placeholder="Tối thiểu 8 ký tự, có chữ hoa và số" required>
+                <small style="display: block; margin-top: 8px; color: #636e72; font-size: 0.8rem; line-height: 1.4;">
+                    * Ít nhất 8 ký tự, bao gồm 1 chữ hoa, 1 chữ thường và 1 chữ số.
+                </small>
             </div>
-            <button type="submit" class="btn-auth">TẠO TÀI KHOẢN</button>
+
+            <button type="submit" class="btn-auth">ĐĂNG KÝ NGAY</button>
         </form>
+
         <div class="auth-footer">
-            Đã có tài khoản? <a href="/login">Đăng nhập</a>
+            Đã có tài khoản? <a href="/login">Đăng nhập tại đây</a>
         </div>
     </div>
 </div>

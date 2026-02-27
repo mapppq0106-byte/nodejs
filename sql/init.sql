@@ -15,8 +15,9 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE, -- Thêm ràng buộc UNIQUE ở đây
-    role VARCHAR(50) DEFAULT 'user'
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(50) DEFAULT 'user',
+    is_locked TINYINT(1) DEFAULT 0 -- Thêm dòng này để quản lý trạng thái khóa
 );
 
 -- 4. Tạo bảng Sách (Giữ nguyên ràng buộc UNIQUE cho title và isbn)

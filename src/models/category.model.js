@@ -15,6 +15,12 @@ const Category = {
         );
     },
 
+    // Hàm mới: Kiểm tra trùng tên
+    checkDuplicateName: async (name) => {
+        const [rows] = await db.execute('SELECT * FROM categories WHERE name = ?', [name]);
+        return rows.length > 0;
+    },
+
     // Xóa danh mục
     delete: async (id) => {
         return await db.execute('DELETE FROM categories WHERE id = ?', [id]);

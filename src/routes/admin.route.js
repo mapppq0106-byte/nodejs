@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     }
 });
 
-// Giới hạn dung lượng và loại file (Tùy chọn bổ sung để bảo mật)
+// Giới hạn dung lượng và loại file
 const upload = multer({ 
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn 5MB
@@ -36,25 +36,24 @@ router.get('/admin/dashboard', isAdmin, adminController.getDashboard); // Alias 
 router.get('/admin/add', isAdmin, adminController.getAddBook);
 router.post('/admin/add', isAdmin, upload.single('image'), adminController.postAddBook);
 router.get('/admin/edit/:id', isAdmin, adminController.getEditBook);
-// Đã hỗ trợ postEditBook kiểm tra trùng tên trong Controller
 router.post('/admin/edit/:id', isAdmin, upload.single('image'), adminController.postEditBook);
 router.post('/admin/delete/:id', isAdmin, adminController.postDeleteBook);
 
 // --- ROUTES QUẢN LÝ NGƯỜI DÙNG ---
 router.get('/admin/users', isAdmin, adminController.getUserManagement);
-router.post('/admin/users/delete/:id', isAdmin, adminController.postDeleteUser);
+// CẬP NHẬT: Thay đổi từ delete sang toggle-lock
+router.post('/admin/users/toggle-lock/:id', isAdmin, adminController.postToggleLockUser);
 
 // --- ROUTES QUẢN LÝ ĐÁNH GIÁ ---
 router.get('/admin/reviews', isAdmin, adminController.getReviewManagement);
 router.post('/admin/reviews/delete/:id', isAdmin, adminController.postDeleteReview);
 
-// --- ROUTES QUẢN LÝ THỐNG KÊ (Đã cập nhật Sao & Lượt xem) ---
+// --- ROUTES QUẢN LÝ THỐNG KÊ ---
 router.get('/admin/statistics', isAdmin, adminController.getStatistics);
 
 // --- ROUTES QUẢN LÝ DANH MỤC ---
 router.get('/admin/categories', isAdmin, categoryController.getCategoryManagement);
 router.post('/admin/categories/add', isAdmin, categoryController.postAddCategory);
-// Lưu ý: Nên dùng POST cho hành động xóa để bảo mật hơn thay vì GET
 router.get('/admin/categories/delete/:id', isAdmin, categoryController.getDeleteCategory);
 
 module.exports = router;

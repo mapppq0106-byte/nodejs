@@ -34,13 +34,21 @@ exports.postSignup = async (req, res) => {
     }
 };
 
-// Xử lý đăng nhập
+// Xử lý đăng nhập (CẬP NHẬT CHẶN TÀI KHOẢN BỊ KHÓA)
 exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await User.findByUsername(username);
         
         if (user && user.password === password) {
+            
+            // --- KIỂM TRA TRẠNG THÁI KHÓA ---
+            if (user.is_locked) {
+                return res.render('login', { 
+                    error: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết." 
+                });
+            }
+
             // Lưu thông tin vào session
             req.session.user = {
                 id: user.id,
@@ -57,11 +65,12 @@ exports.postLogin = async (req, res) => {
             console.log(`Đăng nhập thành công! Chuyển hướng về: ${redirectUrl}`);
             res.redirect(redirectUrl);
         } else {
-            res.status(401).send("Sai tài khoản hoặc mật khẩu");
+            // Thay vì dùng .send, nên render lại trang login kèm thông báo lỗi để trải nghiệm người dùng tốt hơn
+            res.render('login', { error: "Sai tài khoản hoặc mật khẩu" });
         }
     } catch (error) {
         console.error("Lỗi đăng nhập:", error);
-        res.status(500).send("Lỗi hệ thống");
+        res.render('login', { error: "Lỗi hệ thống trong quá trình đăng nhập" });
     }
 };
 
