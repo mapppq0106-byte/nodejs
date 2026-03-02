@@ -1,8 +1,8 @@
-<div class="container">
+<div class="container" style="margin-top: 30px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2><i class="fas fa-users"></i> Quản Lý Người Dùng</h2>
-        <a href="/admin" class="btn-auth" style="text-decoration: none; background: #6c757d;">
-            <i class="fas fa-book"></i> Quản Lý Sách
+        <h2 style="color: #333;"><i class="fas fa-users"></i> Quản Lý Người Dùng</h2>
+        <a href="/admin/dashboard" class="btn-auth" style="text-decoration: none; background: #6c757d; color: white; padding: 8px 15px; border-radius: 4px; font-size: 14px;">
+            <i class="fas fa-arrow-left"></i> Quay lại Dashboard
         </a>
     </div>
 
@@ -25,16 +25,16 @@
                 <td>{{this.email}}</td>
                 <td>
                     {{#if (eq this.role 'admin')}}
-                        <span style="background: #ffd700; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #000;">Admin</span>
+                        <span style="background: #ffd700; padding: 2px 8px; border-radius: 12px; font-size: 11px; color: #000; font-weight: bold;">ADMIN</span>
                     {{else}}
-                        <span style="background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #495057;">User</span>
+                        <span style="background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 11px; color: #495057;">USER</span>
                     {{/if}}
                 </td>
                 <td>
-                    {{#if this.is_locked}}
-                        <span style="color: #ff4444;"><i class="fas fa-lock"></i> Đã khóa</span>
+                    {{#if (eq this.status 'locked')}}
+                        <span style="color: #ff4444; font-weight: 500;"><i class="fas fa-user-lock"></i> Bị khóa</span>
                     {{else}}
-                        <span style="color: #00C851;"><i class="fas fa-check-circle"></i> Hoạt động</span>
+                        <span style="color: #00C851; font-weight: 500;"><i class="fas fa-check-circle"></i> Hoạt động</span>
                     {{/if}}
                 </td>
                 <td style="text-align: center;">
@@ -44,19 +44,27 @@
                                 <i class="fas fa-shield-alt"></i> Hệ thống
                             </span>
                         {{else}}
-                            {{!-- Thay đổi form xóa thành form khóa/mở khóa --}}
-                            <form action="/admin/users/toggle-lock/{{this.id}}" method="POST" 
-                                  onsubmit="return confirm('Bạn có chắc muốn {{#if this.is_locked}}Mở khóa{{else}}Khóa{{/if}} người dùng [{{this.username}}]?')">
-                                {{#if this.is_locked}}
-                                    <button type="submit" class="btn-action" style="background: #00C851; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer; width: 100px;">
+                            {{!-- Nút Khóa / Mở khóa --}}
+                            <form action="/admin/users/toggle-status/{{this.id}}" method="POST" 
+                                  onsubmit="return confirm('Bạn có chắc muốn {{#if (eq this.status 'locked')}}Mở khóa{{else}}Khóa{{/if}} tài khoản [{{this.username}}]?')">
+                                {{#if (eq this.status 'locked')}}
+                                    <button type="submit" class="btn-action" style="background: #00C851; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer; width: 110px;">
                                         <i class="fas fa-unlock"></i> Mở khóa
                                     </button>
                                 {{else}}
-                                    <button type="submit" class="btn-action" style="background: #ffbb33; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer; width: 100px;">
-                                        <i class="fas fa-user-slash"></i> Khóa
+                                    <button type="submit" class="btn-action" style="background: #ffbb33; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer; width: 110px;">
+                                        <i class="fas fa-user-slash"></i> Khóa tài khoản
                                     </button>
                                 {{/if}}
                             </form>
+
+                            {{!-- Nút Xóa (Nếu cần giữ lại) --}}
+                            {{!-- <form action="/admin/users/delete/{{this.id}}" method="POST" 
+                                  onsubmit="return confirm('CẢNH BÁO: Bạn có chắc muốn XÓA VĨNH VIỄN người dùng này?')">
+                                <button type="submit" class="btn-action" style="background: #ff4444; border: none; padding: 6px 12px; color: white; border-radius: 4px; cursor: pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form> --}}
                         {{/if}}
                     </div>
                 </td>
@@ -67,9 +75,10 @@
 </div>
 
 <style>
-    .admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .admin-table th { background: #343a40; color: white; padding: 12px; text-align: left; }
-    .admin-table td { padding: 12px; border-bottom: 1px solid #dee2e6; }
-    .admin-table tr:hover { background-color: #f8f9fa; }
-    .btn-action:hover { opacity: 0.85; filter: brightness(0.9); }
+    .admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .admin-table th { background: #212529; color: white; padding: 15px; text-align: left; font-weight: 500; }
+    .admin-table td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .admin-table tr:hover { background-color: #fcfcfc; }
+    .btn-action { transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
+    .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
 </style>

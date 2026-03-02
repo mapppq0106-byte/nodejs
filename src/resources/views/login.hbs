@@ -1,19 +1,49 @@
 <div class="auth-wrapper">
     <div class="auth-container">
         <h2>Đăng Nhập</h2>
+
+        {{#if error}}
+            <div class="auth-error-msg" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{error}}</span>
+            </div>
+        {{/if}}
+
         <form action="/login" method="POST">
             <div class="form-group">
-                <label>Tên đăng nhập</label>
-                <input type="text" name="username" class="form-input" required>
+                <label>Địa chỉ Email</label>
+                {{!-- Đổi type thành email và name thành email --}}
+                <input type="email" name="email" class="form-input" value="{{email}}" required placeholder="example@gmail.com">
             </div>
             <div class="form-group">
                 <label>Mật khẩu</label>
-                <input type="password" name="password" class="form-input" required>
+                <input type="password" name="password" class="form-input" required placeholder="Nhập mật khẩu...">
             </div>
             <button type="submit" class="btn-auth">ĐĂNG NHẬP</button>
         </form>
+
         <div class="auth-footer">
             Chưa có tài khoản? <a href="/signup">Đăng ký ngay</a>
         </div>
     </div>
 </div>
+
+<style>
+    /* Bạn có thể thêm hiệu ứng rung nhẹ khi có lỗi để gây chú ý */
+    .auth-error-msg {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .auth-container {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        background: white;
+        padding: 30px;
+    }
+</style>

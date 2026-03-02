@@ -1,38 +1,57 @@
-<div class="container">
+<div class="container" style="margin-top: 30px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Quản Lý Đánh Giá</h2>
-        <div>
-            <a href="/admin" class="btn-auth" style="text-decoration: none;">Sách</a>
-            <a href="/admin/users" class="btn-auth" style="text-decoration: none;">Người dùng</a>
+        <h2 style="color: #333;"><i class="fas fa-comments"></i> Danh Sách Đánh Giá</h2>
+        <div style="display: flex; gap: 10px;">
+            <a href="/admin/dashboard" class="btn-auth" style="text-decoration: none; background: #007bff; color: white; padding: 8px 15px; border-radius: 4px; font-size: 14px;">
+                <i class="fas fa-book"></i> Quản lý Sách
+            </a>
+            <a href="/admin/users" class="btn-auth" style="text-decoration: none; background: #6c757d; color: white; padding: 8px 15px; border-radius: 4px; font-size: 14px;">
+                <i class="fas fa-users"></i> Người dùng
+            </a>
         </div>
     </div>
 
-    <table>
+    <table class="admin-table">
         <thead>
-            <tr>
-                <th>Người dùng</th>
-                <th>Tên sách</th>
-                <th>Điểm</th>
-                <th>Nội dung</th>
-                {{!-- <th>Ngày gửi</th> --}}
-                <th>Hành động</th>
+            <tr style="background: #212529; color: white;">
+                <th style="padding: 15px;">Người dùng</th>
+                <th style="padding: 15px;">Tên sách</th>
+                <th style="padding: 15px; text-align: center;">Điểm</th>
+                <th style="padding: 15px;">Nội dung</th>
+                <th style="padding: 15px; text-align: right;">Ngày gửi</th>
             </tr>
         </thead>
         <tbody>
             {{#each reviews}}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px;">
+                    <span style="font-weight: 500; color: #333;">{{this.username}}</span>
+                </td>
+                <td style="padding: 15px;"><strong>{{this.book_title}}</strong></td>
+                <td style="padding: 15px; text-align: center;">
+                    <span style="color: #ffcc00; font-weight: bold;">{{this.rating}} ⭐</span>
+                </td>
+                <td style="padding: 15px; max-width: 400px; word-wrap: break-word; color: #555; line-height: 1.4;">
+                    {{this.comment}}
+                </td>
+                <td style="padding: 15px; text-align: right; color: #888; font-size: 0.85rem; white-space: nowrap;">
+                    {{formatDate this.created_at}}
+                </td>
+            </tr>
+            {{else}}
             <tr>
-                <td>{{this.username}}</td>
-                <td><strong>{{this.book_title}}</strong></td>
-                <td><span style="color: #ffcc00;">{{this.rating}} ⭐</span></td>
-                <td style="max-width: 300px; word-wrap: break-word;">{{this.comment}}</td>
-                {{!-- <td>{{this.created_at}}</td> --}}
-                <td>
-                    <form action="/admin/reviews/delete/{{this.id}}" method="POST" onsubmit="return confirm('Xóa đánh giá này?')">
-                        <button type="submit" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Xóa</button>
-                    </form>
+                <td colspan="5" style="text-align: center; padding: 30px; color: #999; font-style: italic;">
+                    Chưa có đánh giá nào để hiển thị.
                 </td>
             </tr>
             {{/each}}
         </tbody>
     </table>
 </div>
+
+<style>
+    .admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .admin-table th { text-align: left; font-weight: 500; }
+    .admin-table td { vertical-align: middle; }
+    .admin-table tr:hover { background-color: #fcfcfc; }
+</style>

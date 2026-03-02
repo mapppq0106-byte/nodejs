@@ -2,29 +2,31 @@
     <div class="auth-container" style="max-width: 600px;">
         <h2>Chỉnh Sửa Thông Tin Sách</h2>
 
-        {{!-- Hiển thị thông báo lỗi khi trùng tiêu đề sách --}}
+        {{!-- HIỂN THỊ THÔNG BÁO LỖI ĐỎ --}}
         {{#if error}}
-            <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-weight: bold; text-align: center;">
-                <i class="fas fa-exclamation-triangle"></i> {{error}}
+            <div class="auth-error-msg" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><strong style="font-weight: 700;">Lỗi:</strong> {{error}}</span>
             </div>
         {{/if}}
 
         <form action="/admin/edit/{{book.id}}" method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label>Tiêu đề sách</label>
-                <input type="text" name="title" class="form-input" value="{{book.title}}" required>
-            </div>
-            <div class="form-group">
-                <label>Tác giả</label>
-                <input type="text" name="author" class="form-input" value="{{book.author}}" required>
+                <label>Tiêu đề sách <span style="color: red;">*</span></label>
+                <input type="text" name="title" class="form-input" value="{{book.title}}" required placeholder="Nhập tên sách...">
             </div>
 
             <div class="form-group">
-                <label>Danh mục sách</label>
+                <label>Tác giả <span style="color: red;">*</span></label>
+                <input type="text" name="author" class="form-input" value="{{book.author}}" required placeholder="Nhập tên tác giả...">
+            </div>
+
+            <div class="form-group">
+                <label>Danh mục sách <span style="color: red;">*</span></label>
                 <select name="category_id" class="form-input" required>
-                    <option value="">-- Chọn danh mục --</option>
+                    <option value="">-- Bắt buộc chọn danh mục --</option>
                     {{#each categories}}
-                        {{!-- So sánh ID danh mục với ID của sách đang có --}}
+                        {{!-- So sánh ID danh mục của sách hiện tại để tự động chọn (selected) --}}
                         <option value="{{this.id}}" {{#if (eq this.id ../book.category_id)}}selected{{/if}}>
                             {{this.name}}
                         </option>
@@ -33,26 +35,59 @@
             </div>
             
             <div class="form-group">
-                <label>Giá (VNĐ)</label>
-                <input type="number" name="price" class="form-input" value="{{book.price}}" required>
+                <label>Giá (VNĐ) <span style="color: red;">*</span></label>
+                <input type="number" name="price" class="form-input" value="{{book.price}}" min="0" required>
             </div>
+
             <div class="form-group">
                 <label>Ảnh bìa hiện tại</label>
-                <div style="margin-bottom: 10px;">
-                    <img src="/img/{{book.image_url}}" alt="{{book.title}}" style="width: 100px; border-radius: 8px;">
+                <div style="margin-bottom: 12px; background: #f8f9fa; padding: 10px; border-radius: 8px; display: inline-block; border: 1px solid #eee;">
+                    <img src="/img/{{book.image_url}}" alt="{{book.title}}" style="width: 120px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                 </div>
+                <br>
                 <label>Thay đổi ảnh mới (Để trống nếu giữ nguyên)</label>
                 <input type="file" name="image" class="form-input" accept="image/*">
+                <small style="color: #666; font-size: 0.8rem;">Định dạng: jpg, png, webp. Dung lượng < 5MB.</small>
             </div>
+
             <div class="form-group">
-                <label>Mô tả sách</label>
-                <textarea name="description" class="form-input" rows="5">{{book.description}}</textarea>
+                <label>Mô tả nội dung <span style="color: red;">*</span></label>
+                <textarea name="description" class="form-input" rows="5" required placeholder="Viết mô tả chi tiết về cuốn sách...">{{book.description}}</textarea>
             </div>
             
-            <div style="display: flex; gap: 15px;">
-                <button type="submit" class="btn-auth">CẬP NHẬT</button>
-                <a href="/admin" class="btn-logout-nav" style="text-align: center; flex: 1; line-height: 25px;">HỦY BỎ</a>
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button type="submit" class="btn-auth" style="background: #007bff; flex: 2;">
+                    <i class="fas fa-save"></i> CẬP NHẬT
+                </button>
+                <a href="/admin/dashboard" class="btn-logout-nav" style="text-align: center; flex: 1; line-height: 40px; text-decoration: none; background: #6c757d; color: white; border-radius: 5px; font-size: 14px;">
+                    HỦY BỎ
+                </a>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+    /* Hiệu ứng rung thông báo lỗi giống trang Login/Add */
+    .auth-error-msg {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .btn-auth:hover {
+        opacity: 0.9;
+        filter: brightness(0.9);
+    }
+</style>

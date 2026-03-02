@@ -15,10 +15,20 @@ const Category = {
         );
     },
 
-    // Hàm mới: Kiểm tra trùng tên
+    // Kiểm tra trùng tên danh mục
     checkDuplicateName: async (name) => {
         const [rows] = await db.execute('SELECT * FROM categories WHERE name = ?', [name]);
         return rows.length > 0;
+    },
+
+    // HÀM MỚI BỔ SUNG: Đếm số lượng sách thuộc một danh mục
+    // Mục đích: Kiểm tra xem danh mục có sách hay không trước khi xóa
+    countBooksInCategory: async (categoryId) => {
+        const [rows] = await db.execute(
+            'SELECT COUNT(*) as count FROM books WHERE category_id = ?',
+            [categoryId]
+        );
+        return rows[0].count;
     },
 
     // Xóa danh mục

@@ -4,13 +4,17 @@ const Book = require('../models/book.model');
 exports.getAllBooks = async (req, res) => {
     try {
         const keyword = req.query.search;
-        const categoryId = req.query.category; // Lấy ID danh mục từ dropdown header
+        let categoryId = req.query.category;
+
+        // Xử lý nếu người dùng chọn "Tất cả" (thường gửi về "" hoặc "all")
+        if (categoryId === 'all' || categoryId === '') {
+            categoryId = null;
+        }
 
         let books;
-        
-        // Logic lọc kết hợp: Nếu có category hoặc có từ khóa tìm kiếm
-        if (categoryId || keyword) {
-            books = await Book.searchBooks(keyword ? keyword.trim() : '', categoryId || null);
+        // Nếu có từ khóa tìm kiếm HOẶC có lọc theo ID danh mục cụ thể
+        if (keyword || categoryId) {
+            books = await Book.searchBooks(keyword ? keyword.trim() : '', categoryId);
         } else {
             books = await Book.getAll();
         }
@@ -18,11 +22,11 @@ exports.getAllBooks = async (req, res) => {
         res.render('home', { 
             books, 
             keyword, 
-            currentCategory: categoryId // Gửi lại để header giữ trạng thái đã chọn
+            currentCategory: categoryId 
         });
     } catch (error) {
-        console.error("Lỗi getAllBooks:", error);
-        res.status(500).send('Lỗi khi lấy dữ liệu sách');
+        console.error("Lỗi hiển thị sách:", error);
+        res.status(500).send('Lỗi hệ thống');
     }
 };
 
@@ -60,18 +64,25 @@ exports.getBookDetail = async (req, res) => {
 exports.postReview = async (req, res) => {
     try {
         const bookId = req.params.id;
-        const { rating, comment } = req.body;
-        const userId = req.session.user ? req.session.user.id : null; 
+        const { rating, comment, is_anonymous } = req.body; // is_anonymous từ form
+        const userId = req.session.user ? req.session.user.id : null;
 
         if (!userId) return res.redirect('/login');
 
-        const alreadyReviewed = await Book.checkUserReview(userId, bookId);
-        if (alreadyReviewed) return res.status(400).send('Bạn đã đánh giá sách này rồi');
+        // Chuyển đổi checkbox (thường là 'on' hoặc undefined) sang boolean
+        const isAnonymous = is_anonymous === 'on' || is_anonymous === true;
 
-        await Book.addReview(userId, bookId, rating, comment);
+        const alreadyReviewed = await Book.checkUserReview(userId, bookId);
+        if (alreadyReviewed) {
+            // Có thể xử lý thông báo lỗi tại đây
+            return res.redirect(`/book/${bookId}`);
+        }
+
+        await Book.addReview(userId, bookId, rating, comment, isAnonymous);
         res.redirect(`/book/${bookId}`);
     } catch (error) {
-        res.status(500).send('Lỗi khi gửi đánh giá');
+        console.error(error);
+        res.status(500).send('Lỗi hệ thống khi gửi đánh giá');
     }
 };
 

@@ -2,23 +2,24 @@
     <div class="auth-container">
         <h2>Đăng Ký Thành Viên</h2>
         
-        {{!-- Hiển thị thông báo lỗi từ Server --}}
+        {{!-- PHẦN HIỂN THỊ THÔNG BÁO LỖI (Đồng bộ với Login) --}}
         {{#if error}}
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i> {{error}}
+            <div class="auth-error-msg" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{error}}</span>
             </div>
         {{/if}}
 
         <form action="/signup" method="POST">
             <div class="form-group">
                 <label>Tên đăng nhập</label>
-                {{!-- Giữ lại username cũ nếu có lỗi để người dùng không phải nhập lại --}}
+                {{!-- Sử dụng data.username để giữ lại giá trị khi render lại trang --}}
                 <input type="text" name="username" value="{{data.username}}" class="form-input" placeholder="Ví dụ: quyphan123" required>
             </div>
             
             <div class="form-group">
                 <label>Email</label>
-                {{!-- type="email" giúp trình duyệt tự kiểm tra định dạng @ --}}
+                {{!-- Sử dụng data.email để giữ lại giá trị --}}
                 <input type="email" name="email" value="{{data.email}}" class="form-input" placeholder="example@gmail.com" required>
             </div>
 
@@ -39,3 +40,30 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Hiệu ứng rung nhẹ khi có lỗi để gây chú ý giống trang Login */
+    .auth-error-msg {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .auth-container {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        background: white;
+        padding: 30px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2d3436;
+    }
+</style>

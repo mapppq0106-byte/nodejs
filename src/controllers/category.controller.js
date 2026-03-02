@@ -1,28 +1,34 @@
 // src/controllers/category.controller.js
 const Category = require('../models/category.model');
 
+// 1. Hiển thị danh sách quản lý danh mục
 exports.getCategoryManagement = async (req, res) => {
     try {
         const categories = await Category.getAll();
         res.render('admin/category-list', { 
-            categories,
-            // Đảm bảo hiển thị đúng layout nếu bạn có chia layout admin riêng
+            categories
         });
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi tải danh mục:", error);
         res.status(500).send('Lỗi tải danh mục');
     }
 };
 
+// 2. Xử lý thêm danh mục mới
 exports.postAddCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
-        if (!name) return res.status(400).send('Tên không được để trống');
+        if (!name) {
+            const categories = await Category.getAll();
+            return res.render('admin/category-list', { 
+                categories, 
+                error: "Tên danh mục không được để trống!" 
+            });
+        }
         
-        // 1. Kiểm tra trùng tên
+        // Kiểm tra trùng tên
         const isDuplicate = await Category.checkDuplicateName(name);
         if (isDuplicate) {
-            // Lấy lại danh sách để render lại trang cùng thông báo lỗi
             const categories = await Category.getAll();
             return res.render('admin/category-list', { 
                 categories, 
@@ -30,23 +36,36 @@ exports.postAddCategory = async (req, res) => {
             });
         }
         
-        // 2. Nếu không trùng thì mới tạo
         await Category.create(name, description);
         res.redirect('/admin/categories');
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi thêm danh mục:", error);
         res.status(500).send('Lỗi khi thêm danh mục');
     }
 };
 
-// Thêm chức năng xóa danh mục nếu chưa có
+// 3. Xử lý xóa danh mục (CẬP NHẬT: Kiểm tra ràng buộc với sách)
 exports.getDeleteCategory = async (req, res) => {
     try {
         const id = req.params.id;
+
+        // BƯỚC 1: Kiểm tra xem danh mục này có chứa cuốn sách nào không
+        const bookCount = await Category.countBooksInCategory(id);
+
+        if (bookCount > 0) {
+            // Nếu có ít nhất 1 cuốn sách, báo lỗi và không xóa
+            const categories = await Category.getAll();
+            return res.render('admin/category-list', { 
+                categories, 
+                error: "Danh mục này không thể xóa vì đã có sách trong danh mục đó!" 
+            });
+        }
+
+        // BƯỚC 2: Nếu không có sách, tiến hành xóa
         await Category.delete(id);
         res.redirect('/admin/categories');
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi xóa danh mục:", error);
         res.status(500).send('Lỗi khi xóa danh mục');
     }
 };

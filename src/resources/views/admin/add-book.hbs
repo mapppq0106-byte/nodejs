@@ -1,41 +1,67 @@
 <div class="auth-wrapper">
-    <div class="auth-container">
+    <div class="auth-container" style="max-width: 600px;">
         <h2>Thêm Sách Mới</h2>
+
+        {{!-- HIỂN THỊ THÔNG BÁO LỖI ĐỎ --}}
+        {{#if error}}
+            <div class="auth-error-msg" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{error}}</span>
+            </div>
+        {{/if}}
+
         <form action="/admin/add" method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label>Tiêu đề sách</label>
-                <input type="text" name="title" class="form-input" required>
+                <label>Tiêu đề sách <span style="color: red;">*</span></label>
+                <input type="text" name="title" class="form-input" value="{{data.title}}" required placeholder="Nhập tên sách...">
             </div>
+
             <div class="form-group">
-                <label>Tác giả</label>
-                <input type="text" name="author" class="form-input" required>
+                <label>Tác giả <span style="color: red;">*</span></label>
+                <input type="text" name="author" class="form-input" value="{{data.author}}" required placeholder="Nhập tên tác giả...">
             </div>
+
             <div class="form-group">
-                <label>Danh mục sách</label>
-                <select name="category_id" class="form-input">
-                    <option value="">-- Chọn danh mục --</option>
+                <label>Danh mục sách <span style="color: red;">*</span></label>
+                <select name="category_id" class="form-input" required>
+                    <option value="">-- Bắt buộc chọn danh mục --</option>
                     {{#each categories}}
-                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{!-- Logic giữ lại danh mục đã chọn --}}
+                        <option value="{{this.id}}" {{#if (eq this.id ../data.category_id)}}selected{{/if}}>
+                            {{this.name}}
+                        </option>
                     {{/each}}
                 </select>
             </div>
-            {{!-- <div class="form-group">
-                <label>Mã ISBN</label>
-                <input type="text" name="isbn" class="form-input">
-            </div> --}}
+
             <div class="form-group">
-                <label>Giá (VNĐ)</label>
-                <input type="number" name="price" class="form-input" required>
+                <label>Giá (VNĐ) <span style="color: red;">*</span></label>
+                <input type="number" name="price" class="form-input" value="{{data.price}}" min="0" required>
             </div>
+
             <div class="form-group">
-                <label>Ảnh bìa</label>
-                <input type="file" name="image" class="form-input" accept="image/*">
+                <label>Ảnh bìa <span style="color: red;">*</span></label>
+                {{!-- Thêm required cho file input --}}
+                <input type="file" name="image" class="form-input" accept="image/*" required>
+                <small style="color: #666;">Chấp nhận: jpg, png, webp (Tối đa 5MB)</small>
             </div>
+
             <div class="form-group">
-                <label>Mô tả ngắn</label>
-                <textarea name="description" class="form-input" rows="4"></textarea>
+                <label>Mô tả nội dung <span style="color: red;">*</span></label>
+                <textarea name="description" class="form-input" rows="4" required placeholder="Viết mô tả chi tiết về cuốn sách...">{{data.description}}</textarea>
             </div>
-            <button type="submit" class="btn-auth">LƯU THÔNG TIN</button>
+
+            <button type="submit" class="btn-auth" style="background: #28a745;">LƯU THÔNG TIN</button>
+            <a href="/admin/dashboard" style="display: block; text-align: center; margin-top: 15px; color: #666; text-decoration: none;">Hủy bỏ</a>
         </form>
     </div>
 </div>
+
+<style>
+    .auth-error-msg { animation: shake 0.5s ease-in-out; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>

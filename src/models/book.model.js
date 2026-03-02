@@ -49,7 +49,7 @@ const Book = {
         return rows;
     },
 
-    // 4. Lấy thông tin chi tiết
+    // 4. Lấy thông tin chi tiết sách
     getById: async (id) => {
         const sql = `
             SELECT b.*, c.name as category_name 
@@ -60,10 +60,14 @@ const Book = {
         return rows[0];
     },
 
-    // 5. Lấy reviews của sách
+    // 5. CẬP NHẬT: Lấy reviews của sách (Xử lý hiển thị ẩn danh cho người dùng)
     getReviews: async (bookId) => {
         const sql = `
-            SELECT r.*, u.username 
+            SELECT r.*, 
+            CASE 
+                WHEN r.is_anonymous = 1 THEN 'Người dùng ẩn danh' 
+                ELSE u.username 
+            END as username
             FROM reviews r 
             JOIN users u ON r.user_id = u.id 
             WHERE r.book_id = ? 
@@ -76,8 +80,8 @@ const Book = {
     getByIsbn: async (isbn) => {
         const sql = `
             SELECT b.*, 
-                   IFNULL(AVG(r.rating), 0) as average_score,
-                   COUNT(r.id) as review_count
+                    IFNULL(AVG(r.rating), 0) as average_score,
+                    COUNT(r.id) as review_count
             FROM books b
             LEFT JOIN reviews r ON b.id = r.book_id
             WHERE b.isbn = ?
@@ -86,10 +90,14 @@ const Book = {
         return rows[0];
     },
 
-    // 7. Lấy toàn bộ đánh giá cho Admin
+    // 7. CẬP NHẬT: Lấy toàn bộ đánh giá cho Admin (Xử lý logic Ẩn danh thống nhất)
     getAllReviews: async () => {
         const sql = `
-            SELECT r.*, u.username, b.title as book_title 
+            SELECT r.*, b.title as book_title,
+            CASE 
+                WHEN r.is_anonymous = 1 THEN 'Người dùng ẩn danh' 
+                ELSE u.username 
+            END as username
             FROM reviews r 
             JOIN users u ON r.user_id = u.id 
             JOIN books b ON r.book_id = b.id 
@@ -98,7 +106,13 @@ const Book = {
         return rows;
     },
 
-    // --- MỚI: Kiểm tra trùng tên sách (Ràng buộc yêu cầu) ---
+    // --- Chức năng Admin: Đảo trạng thái Ẩn danh/Hiện tên ---
+    toggleReviewAnonymous: async (reviewId) => {
+        const sql = `UPDATE reviews SET is_anonymous = NOT is_anonymous WHERE id = ?`;
+        return await db.execute(sql, [reviewId]);
+    },
+
+    // --- KIỂM TRA TRÙNG TÊN SÁCH ---
     checkDuplicateTitle: async (title, excludeId = null) => {
         let sql = 'SELECT * FROM books WHERE title = ?';
         const params = [title];
@@ -112,7 +126,7 @@ const Book = {
         return rows.length > 0;
     },
 
-    // 8. Lấy chương
+    // 8. Quản lý chương sách
     getChapters: async (bookId) => {
         const [rows] = await db.execute('SELECT * FROM chapters WHERE book_id = ? ORDER BY chapter_number ASC', [bookId]);
         return rows;
@@ -123,21 +137,24 @@ const Book = {
         return rows[0];
     },
 
-    // --- MỚI: Tăng lượt xem khi đọc sách ---
+    // --- TĂNG LƯỢT XEM ---
     incrementViewCount: async (id) => {
         return await db.execute('UPDATE books SET view_count = view_count + 1 WHERE id = ?', [id]);
     },
 
+    // --- QUẢN LÝ ĐÁNH GIÁ (USER) ---
     checkUserReview: async (userId, bookId) => {
         const [rows] = await db.execute('SELECT * FROM reviews WHERE user_id = ? AND book_id = ?', [userId, bookId]);
         return rows.length > 0;
     },
 
-    addReview: async (userId, bookId, rating, comment) => {
-        const sql = 'INSERT INTO reviews (user_id, book_id, rating, comment) VALUES (?, ?, ?, ?)';
-        return await db.execute(sql, [userId, bookId, rating, comment]);
+    // CẬP NHẬT: Thêm tham số isAnonymous
+    addReview: async (userId, bookId, rating, comment, isAnonymous) => {
+        const sql = 'INSERT INTO reviews (user_id, book_id, rating, comment, is_anonymous) VALUES (?, ?, ?, ?, ?)';
+        return await db.execute(sql, [userId, bookId, rating, comment, isAnonymous ? 1 : 0]);
     },
 
+    // --- QUẢN LÝ SÁCH (ADMIN) ---
     create: async (data) => {
         const { title, author, description, image_url, price, isbn, category_id } = data;
         const sql = 'INSERT INTO books (title, author, description, image_url, price, isbn, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -161,15 +178,14 @@ const Book = {
         return await db.execute('DELETE FROM reviews WHERE id = ?', [reviewId]);
     },
 
+    // --- THỐNG KÊ ---
     getStatistics: async () => {
-        // 1. Lấy Top 5 sách được xem nhiều nhất
         const [mostViewed] = await db.execute(`
             SELECT title, view_count 
             FROM books 
             ORDER BY view_count DESC 
             LIMIT 5`);
 
-        // 2. Lấy Top 5 sách được đánh giá nhiều nhất (kèm số lượt đánh giá và sao trung bình)
         const [mostReviewed] = await db.execute(`
             SELECT 
                 b.title, 
